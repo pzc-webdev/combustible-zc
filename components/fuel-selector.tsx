@@ -1,6 +1,6 @@
 "use client";
 
-import { Fuel, Gauge } from "lucide-react";
+import { Fuel } from "lucide-react";
 import type { FuelFamily, FuelGrade, FuelSelection } from "@/lib/types";
 
 type FuelSelectorProps = {
@@ -60,7 +60,6 @@ export function FuelSelector({
         <fieldset>
           <legend className="field-label flex items-center gap-1.5">
             Variante
-            <Gauge size={14} aria-hidden="true" />
           </legend>
           <div className="segmented-control">
             {GRADES.map((grade) => (

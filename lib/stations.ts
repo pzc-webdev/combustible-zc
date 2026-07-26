@@ -7,7 +7,10 @@ import type {
   UserPosition,
 } from "@/lib/types";
 
-export const MAX_DISTANCE_KM = 15;
+export const DEFAULT_RADIUS_KM = 15;
+export const MIN_RADIUS_KM = 1;
+export const MAX_RADIUS_KM = 50;
+export const RADIUS_PRESETS = [5, 10, 15, 25, 50] as const;
 
 export const FUEL_KEYS: Record<string, string> = {
   "gasoline-normal": "Precio Gasolina 95 E5",
@@ -74,6 +77,7 @@ export function processStations(
   selection: FuelSelection,
   discounts: Discount[],
   userPosition: UserPosition,
+  maximumDistanceKm = DEFAULT_RADIUS_KM,
 ): ResultLists {
   const fuelKey = FUEL_KEYS[`${selection.family}-${selection.grade}`];
 
@@ -97,7 +101,7 @@ export function processStations(
         longitude,
       });
 
-      if (distanceKm > MAX_DISTANCE_KM) return [];
+      if (distanceKm > maximumDistanceKm) return [];
 
       const brand = station["Rótulo"]?.trim() || "Sin rótulo";
       const discountCents = applicableDiscount(brand, discounts);

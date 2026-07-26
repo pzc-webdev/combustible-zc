@@ -10,6 +10,7 @@ type ListKey = keyof ResultLists;
 type ResultsBoardProps = {
   lists: ResultLists;
   sourceUpdatedAt: string | null;
+  radiusKm: number;
 };
 
 const LISTS: {
@@ -90,6 +91,7 @@ function ResultColumn({
 export function ResultsBoard({
   lists,
   sourceUpdatedAt,
+  radiusKm,
 }: ResultsBoardProps) {
   const [activeList, setActiveList] = useState<ListKey>("smartest");
   const stationCount = lists.cheapest.length;
@@ -98,7 +100,9 @@ export function ResultsBoard({
     <section className="mt-10 sm:mt-14" aria-labelledby="results-title">
       <div className="mb-5 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow">Resultados en un radio de 15 km</p>
+          <p className="eyebrow">
+            Resultados en un radio de {radiusKm} km
+          </p>
           <h2
             id="results-title"
             className="mt-1 text-2xl font-bold tracking-[-0.04em] text-slate-950 sm:text-3xl"

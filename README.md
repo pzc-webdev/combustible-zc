@@ -44,7 +44,8 @@ para solicitar geolocalización fuera de `localhost`.
 ## Cálculo
 
 - Se descartan estaciones sin precio para el combustible seleccionado.
-- Las distancias se calculan con Haversine y se limitan a 15 km.
+- Las distancias se calculan con Haversine y el usuario puede configurar un
+  radio de búsqueda entre 1 y 50 km.
 - El descuento de marca se resta antes de ordenar o puntuar.
 - Smart Score normaliza precio y distancia entre 0 y 1, y pondera el coste:
   `70% precio + 30% distancia`. Una puntuación más alta es mejor.
