@@ -208,7 +208,7 @@ export function FuelFinder() {
         </section>
 
         <section
-          className="mx-auto mt-8 grid max-w-4xl gap-4 sm:mt-10 lg:grid-cols-[1.35fr_0.65fr]"
+          className="mx-auto mt-8 grid max-w-4xl gap-4 sm:mt-10 "
           aria-label="Preferencias de búsqueda"
         >
           <FuelSelector
