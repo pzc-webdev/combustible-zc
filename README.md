@@ -1,4 +1,4 @@
-# Combustible Cerca
+# Combustible ZC
 
 SPA responsive para comparar gasolineras españolas por precio, distancia y una
 recomendación ponderada. Consume los datos públicos del Ministerio para la

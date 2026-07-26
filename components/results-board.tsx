@@ -11,6 +11,7 @@ type ResultsBoardProps = {
   lists: ResultLists;
   sourceUpdatedAt: string | null;
   radiusKm: number;
+  priceWeight: number;
 };
 
 const LISTS: {
@@ -38,7 +39,7 @@ const LISTS: {
     key: "smartest",
     title: "Mejor opción",
     shortTitle: "Mejor",
-    description: "70% precio · 30% distancia",
+    description: "Smart Score",
     icon: Sparkles,
   },
 ];
@@ -92,6 +93,7 @@ export function ResultsBoard({
   lists,
   sourceUpdatedAt,
   radiusKm,
+  priceWeight,
 }: ResultsBoardProps) {
   const [activeList, setActiveList] = useState<ListKey>("smartest");
   const stationCount = lists.cheapest.length;
@@ -151,7 +153,11 @@ export function ResultsBoard({
             key={list.key}
             listKey={list.key}
             title={list.title}
-            description={list.description}
+            description={
+              list.key === "smartest"
+                ? priceWeight + "% precio · " + (100 - priceWeight) + "% distancia"
+                : list.description
+            }
             icon={list.icon}
             stations={lists[list.key]}
           />
@@ -164,7 +170,11 @@ export function ResultsBoard({
             key={list.key}
             listKey={list.key}
             title={list.title}
-            description={list.description}
+            description={
+              list.key === "smartest"
+                ? priceWeight + "% precio · " + (100 - priceWeight) + "% distancia"
+                : list.description
+            }
             icon={list.icon}
             stations={lists[list.key]}
           />

@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Combustible Cerca | Compara gasolineras",
+  title: "Combustible ZC",
   description:
     "Encuentra las gasolineras más baratas y cercanas, aplicando tus descuentos por marca.",
 };

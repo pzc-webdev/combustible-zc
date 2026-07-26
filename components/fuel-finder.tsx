@@ -8,13 +8,14 @@ import {
   LocateFixed,
   MapPinned,
   RotateCw,
-  ShieldCheck,
 } from "lucide-react";
 import { DiscountManager } from "@/components/discount-manager";
 import { FuelSelector } from "@/components/fuel-selector";
 import { RadiusSelector } from "@/components/radius-selector";
 import { ResultsBoard } from "@/components/results-board";
+import { ScoreWeightSelector } from "@/components/score-weight-selector";
 import {
+  DEFAULT_PRICE_WEIGHT,
   DEFAULT_RADIUS_KM,
   MAX_RADIUS_KM,
   MIN_RADIUS_KM,
@@ -28,8 +29,9 @@ import type {
   UserPosition,
 } from "@/lib/types";
 
-const DISCOUNTS_STORAGE_KEY = "combustible-cerca-discounts";
-const RADIUS_STORAGE_KEY = "combustible-cerca-radius";
+const DISCOUNTS_STORAGE_KEY = "combustible-zc-discounts";
+const RADIUS_STORAGE_KEY = "combustible-zc-radius";
+const SCORE_WEIGHT_STORAGE_KEY = "combustible-zc-score-price-weight-v2";
 
 type SearchStatus = "idle" | "locating" | "loading" | "success" | "error";
 
@@ -84,6 +86,7 @@ export function FuelFinder() {
   });
   const [discounts, setDiscounts] = useState<Discount[]>([]);
   const [radiusKm, setRadiusKm] = useState(DEFAULT_RADIUS_KM);
+  const [priceWeight, setPriceWeight] = useState(DEFAULT_PRICE_WEIGHT);
   const [rawStations, setRawStations] = useState<RawStation[]>([]);
   const [userPosition, setUserPosition] = useState<UserPosition | null>(null);
   const [status, setStatus] = useState<SearchStatus>("idle");
@@ -107,6 +110,16 @@ export function FuelFinder() {
         ) {
           setRadiusKm(savedRadius);
         }
+        const savedPriceWeight = Number(
+          localStorage.getItem(SCORE_WEIGHT_STORAGE_KEY),
+        );
+        if (
+          Number.isFinite(savedPriceWeight) &&
+          savedPriceWeight >= 0 &&
+          savedPriceWeight <= 100
+        ) {
+          setPriceWeight(savedPriceWeight);
+        }
       } catch {
         localStorage.removeItem(DISCOUNTS_STORAGE_KEY);
       } finally {
@@ -127,6 +140,11 @@ export function FuelFinder() {
     localStorage.setItem(RADIUS_STORAGE_KEY, String(radiusKm));
   }, [hasLoadedStorage, radiusKm]);
 
+  useEffect(() => {
+    if (!hasLoadedStorage) return;
+    localStorage.setItem(SCORE_WEIGHT_STORAGE_KEY, String(priceWeight));
+  }, [hasLoadedStorage, priceWeight]);
+
   const results = useMemo(() => {
     if (!userPosition || rawStations.length === 0) return EMPTY_RESULTS;
     return processStations(
@@ -135,8 +153,9 @@ export function FuelFinder() {
       discounts,
       userPosition,
       radiusKm,
+      priceWeight,
     );
-  }, [discounts, radiusKm, rawStations, selection, userPosition]);
+  }, [discounts, priceWeight, radiusKm, rawStations, selection, userPosition]);
 
   const search = async () => {
     setError("");
@@ -182,13 +201,9 @@ export function FuelFinder() {
             <Fuel size={19} aria-hidden="true" />
           </span>
           <span className="text-sm font-extrabold tracking-[-0.02em] text-slate-900 sm:text-base">
-            combustible<span className="text-emerald-600">cerca</span>
+            combustible<span className="text-emerald-600">ZC</span>
           </span>
         </a>
-        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 sm:text-xs">
-          <ShieldCheck size={15} className="text-emerald-600" aria-hidden="true" />
-          Datos oficiales
-        </span>
       </header>
 
       <div className="relative z-10 mx-auto max-w-7xl px-5 pb-12 pt-7 sm:px-8 sm:pb-20 sm:pt-16 lg:px-10">
@@ -220,6 +235,11 @@ export function FuelFinder() {
             <RadiusSelector
               value={radiusKm}
               onChange={setRadiusKm}
+              disabled={isSearching}
+            />
+            <ScoreWeightSelector
+              priceWeight={priceWeight}
+              onChange={setPriceWeight}
               disabled={isSearching}
             />
             <DiscountManager
@@ -288,6 +308,7 @@ export function FuelFinder() {
             lists={results}
             sourceUpdatedAt={sourceUpdatedAt}
             radiusKm={radiusKm}
+            priceWeight={priceWeight}
           />
         )}
       </div>
@@ -297,6 +318,11 @@ export function FuelFinder() {
         <div className="mx-auto flex max-w-7xl flex-col gap-2 px-5 py-6 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-10">
           <p>Precios del Ministerio para la Transición Ecológica de España.</p>
           <p>El precio final es orientativo y depende de tu descuento.</p>
+        </div>
+        <div className="hub-footer">
+          <span />
+          <p>pzcdev</p>
+          <span />
         </div>
       </footer>
     </div>

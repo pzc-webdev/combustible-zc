@@ -11,6 +11,7 @@ export const DEFAULT_RADIUS_KM = 15;
 export const MIN_RADIUS_KM = 1;
 export const MAX_RADIUS_KM = 50;
 export const RADIUS_PRESETS = [5, 10, 15, 25, 50] as const;
+export const DEFAULT_PRICE_WEIGHT = 70;
 
 export const FUEL_KEYS: Record<string, string> = {
   "gasoline-normal": "Precio Gasolina 95 E5",
@@ -78,6 +79,7 @@ export function processStations(
   discounts: Discount[],
   userPosition: UserPosition,
   maximumDistanceKm = DEFAULT_RADIUS_KM,
+  priceWeight = DEFAULT_PRICE_WEIGHT,
 ): ResultLists {
   const fuelKey = FUEL_KEYS[`${selection.family}-${selection.grade}`];
 
@@ -138,6 +140,9 @@ export function processStations(
   const minimumDistance = Math.min(...distances);
   const maximumDistance = Math.max(...distances);
 
+  const safePriceWeight = Math.min(100, Math.max(0, priceWeight)) / 100;
+  const distanceWeight = 1 - safePriceWeight;
+
   const scoredStations = nearbyStations.map((station) => {
     const normalizedPrice = normalize(
       station.finalPrice,
@@ -149,7 +154,9 @@ export function processStations(
       minimumDistance,
       maximumDistance,
     );
-    const weightedCost = normalizedPrice * 0.7 + normalizedDistance * 0.3;
+    const weightedCost =
+      normalizedPrice * safePriceWeight +
+      normalizedDistance * distanceWeight;
 
     return {
       ...station,

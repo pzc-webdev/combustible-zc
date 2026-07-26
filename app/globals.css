@@ -353,6 +353,46 @@ input:focus-visible {
   color: #047857;
 }
 
+.hub-footer {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  width: min(480px, 80%);
+  align-items: center;
+  gap: 1rem;
+  margin: 0 auto;
+  padding: 0 0 1.25rem;
+  border: 0;
+  background: transparent;
+  color: #047857;
+  text-align: center;
+  font-size: 0.75rem;
+  box-shadow: none;
+}
+
+.hub-footer span {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(5, 150, 105, 0.38));
+}
+
+.hub-footer span:last-child {
+  transform: rotate(180deg);
+}
+
+.hub-footer p {
+  margin: 0;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+/*
+  The footer is deliberately light: it acts as a signature under the main
+  information footer rather than as another content section.
+*/
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -10,7 +10,7 @@ export async function GET() {
     const response = await fetch(MINISTRY_API, {
       headers: {
         Accept: "application/json",
-        "User-Agent": "CombustibleCerca/1.0",
+        "User-Agent": "CombustibleZC/1.0",
       },
       next: { revalidate: 900 },
       signal: AbortSignal.timeout(15_000),
