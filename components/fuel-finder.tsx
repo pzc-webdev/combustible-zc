@@ -150,7 +150,11 @@ export function FuelFinder() {
       setUserPosition(position);
       setStatus("loading");
 
-      const response = await fetch("/api/stations");
+      const searchParams = new URLSearchParams({
+        lat: position.latitude.toFixed(5),
+        lng: position.longitude.toFixed(5),
+      });
+      const response = await fetch("/api/stations?" + searchParams.toString());
       const payload = await response.json();
 
       if (!response.ok) {
@@ -257,7 +261,8 @@ export function FuelFinder() {
                   : "Buscar cerca de mí"}
           </button>
           <p className="mt-3 text-xs text-slate-400">
-            Tu ubicación solo se utiliza para calcular distancias.
+            Tu ubicación solo se utiliza para calcular distancias y limitar los
+            resultados a tu zona.
           </p>
         </section>
 
