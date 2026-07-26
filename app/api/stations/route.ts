@@ -4,6 +4,10 @@ const MINISTRY_API =
   "https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/";
 
 export const runtime = "nodejs";
+// El origen del MITECO está en Europa. Evita ejecutar por defecto en IAD,
+// donde la conexión con este servicio ha agotado el tiempo de espera.
+export const preferredRegion = "fra1";
+export const maxDuration = 60;
 
 export async function GET() {
   try {
@@ -13,7 +17,7 @@ export async function GET() {
         "User-Agent": "CombustibleZC/1.0",
       },
       next: { revalidate: 900 },
-      signal: AbortSignal.timeout(15_000),
+      signal: AbortSignal.timeout(45_000),
     });
 
     if (!response.ok) {
@@ -27,10 +31,17 @@ export async function GET() {
       throw new Error("La respuesta del Ministerio no contiene una lista válida");
     }
 
-    return NextResponse.json({
-      stations,
-      sourceUpdatedAt: payload?.Fecha ?? null,
-    });
+    return NextResponse.json(
+      {
+        stations,
+        sourceUpdatedAt: payload?.Fecha ?? null,
+      },
+      {
+        headers: {
+          "Cache-Control": "s-maxage=900, stale-while-revalidate=3600",
+        },
+      },
+    );
   } catch (error) {
     console.error("No se pudieron obtener las estaciones:", error);
 

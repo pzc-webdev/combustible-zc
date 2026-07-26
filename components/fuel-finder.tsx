@@ -31,7 +31,6 @@ import type {
 
 const DISCOUNTS_STORAGE_KEY = "combustible-zc-discounts";
 const RADIUS_STORAGE_KEY = "combustible-zc-radius";
-const SCORE_WEIGHT_STORAGE_KEY = "combustible-zc-score-price-weight-v2";
 
 type SearchStatus = "idle" | "locating" | "loading" | "success" | "error";
 
@@ -110,16 +109,6 @@ export function FuelFinder() {
         ) {
           setRadiusKm(savedRadius);
         }
-        const savedPriceWeight = Number(
-          localStorage.getItem(SCORE_WEIGHT_STORAGE_KEY),
-        );
-        if (
-          Number.isFinite(savedPriceWeight) &&
-          savedPriceWeight >= 0 &&
-          savedPriceWeight <= 100
-        ) {
-          setPriceWeight(savedPriceWeight);
-        }
       } catch {
         localStorage.removeItem(DISCOUNTS_STORAGE_KEY);
       } finally {
@@ -139,11 +128,6 @@ export function FuelFinder() {
     if (!hasLoadedStorage) return;
     localStorage.setItem(RADIUS_STORAGE_KEY, String(radiusKm));
   }, [hasLoadedStorage, radiusKm]);
-
-  useEffect(() => {
-    if (!hasLoadedStorage) return;
-    localStorage.setItem(SCORE_WEIGHT_STORAGE_KEY, String(priceWeight));
-  }, [hasLoadedStorage, priceWeight]);
 
   const results = useMemo(() => {
     if (!userPosition || rawStations.length === 0) return EMPTY_RESULTS;
@@ -201,7 +185,7 @@ export function FuelFinder() {
             <Fuel size={19} aria-hidden="true" />
           </span>
           <span className="text-sm font-extrabold tracking-[-0.02em] text-slate-900 sm:text-base">
-            combustible<span className="text-emerald-600">ZC</span>
+            combustible<span className="text-emerald-600">zc</span>
           </span>
         </a>
       </header>
