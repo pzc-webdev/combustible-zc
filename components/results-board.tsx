@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MapPin, Sparkles, TrendingDown } from "lucide-react";
+import { ChevronDown, MapPin, Sparkles, TrendingDown } from "lucide-react";
 import { StationCard } from "@/components/station-card";
 import type { ResultLists, StationResult } from "@/lib/types";
 
@@ -13,6 +13,8 @@ type ResultsBoardProps = {
   radiusKm: number;
   priceWeight: number;
 };
+
+const STATIONS_PER_PAGE = 20;
 
 const LISTS: {
   key: ListKey;
@@ -50,13 +52,21 @@ function ResultColumn({
   description,
   icon: Icon,
   stations,
+  cheapestRanks,
+  nearestRanks,
 }: {
   listKey: ListKey;
   title: string;
   description: string;
   icon: typeof TrendingDown;
   stations: StationResult[];
+  cheapestRanks?: Map<string, number>;
+  nearestRanks?: Map<string, number>;
 }) {
+  const [visibleCount, setVisibleCount] = useState(STATIONS_PER_PAGE);
+  const visibleStations = stations.slice(0, visibleCount);
+  const remainingStations = stations.length - visibleStations.length;
+
   return (
     <section aria-labelledby={`${listKey}-title`} className="result-column">
       <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-slate-100 bg-white/95 px-4 py-4 backdrop-blur sm:px-5">
@@ -76,14 +86,32 @@ function ResultColumn({
         </div>
       </header>
       <div className="space-y-3 p-3 sm:p-4">
-        {stations.map((station, index) => (
+        {visibleStations.map((station, index) => (
           <StationCard
             key={station.id}
             station={station}
             rank={index + 1}
             showScore={listKey === "smartest"}
+            cheapestRank={cheapestRanks?.get(station.id)}
+            nearestRank={nearestRanks?.get(station.id)}
+            rankingTotal={cheapestRanks?.size}
           />
         ))}
+        {remainingStations > 0 && (
+          <button
+            type="button"
+            onClick={() =>
+              setVisibleCount((current) => current + STATIONS_PER_PAGE)
+            }
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-emerald-700 transition hover:border-emerald-200 hover:bg-emerald-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+          >
+            Mostrar 20 más
+            <ChevronDown size={17} aria-hidden="true" />
+            <span className="text-xs font-medium text-slate-400">
+              ({remainingStations} restantes)
+            </span>
+          </button>
+        )}
       </div>
     </section>
   );
@@ -97,6 +125,12 @@ export function ResultsBoard({
 }: ResultsBoardProps) {
   const [activeList, setActiveList] = useState<ListKey>("smartest");
   const stationCount = lists.cheapest.length;
+  const cheapestRanks = new Map(
+    lists.cheapest.map((station, index) => [station.id, index + 1]),
+  );
+  const nearestRanks = new Map(
+    lists.nearest.map((station, index) => [station.id, index + 1]),
+  );
 
   return (
     <section className="mt-10 sm:mt-14" aria-labelledby="results-title">
@@ -150,7 +184,7 @@ export function ResultsBoard({
       <div className="lg:hidden">
         {LISTS.filter((list) => list.key === activeList).map((list) => (
           <ResultColumn
-            key={list.key}
+            key={list.key + "-" + (lists[list.key][0]?.id ?? "empty") + "-" + lists[list.key].length}
             listKey={list.key}
             title={list.title}
             description={
@@ -160,6 +194,8 @@ export function ResultsBoard({
             }
             icon={list.icon}
             stations={lists[list.key]}
+            cheapestRanks={list.key === "smartest" ? cheapestRanks : undefined}
+            nearestRanks={list.key === "smartest" ? nearestRanks : undefined}
           />
         ))}
       </div>
@@ -167,7 +203,7 @@ export function ResultsBoard({
       <div className="hidden grid-cols-3 gap-4 lg:grid xl:gap-5">
         {LISTS.map((list) => (
           <ResultColumn
-            key={list.key}
+            key={list.key + "-" + (lists[list.key][0]?.id ?? "empty") + "-" + lists[list.key].length}
             listKey={list.key}
             title={list.title}
             description={
@@ -177,6 +213,8 @@ export function ResultsBoard({
             }
             icon={list.icon}
             stations={lists[list.key]}
+            cheapestRanks={list.key === "smartest" ? cheapestRanks : undefined}
+            nearestRanks={list.key === "smartest" ? nearestRanks : undefined}
           />
         ))}
       </div>

@@ -8,12 +8,33 @@ type StationCardProps = {
   station: StationResult;
   rank: number;
   showScore?: boolean;
+  cheapestRank?: number;
+  nearestRank?: number;
+  rankingTotal?: number;
 };
+
+function rankingBadgeClass(rank: number, total: number): string {
+  if (rank === 1) {
+    return "bg-amber-50 text-amber-800 ring-1 ring-inset ring-amber-300";
+  }
+
+  const percentile = rank / total;
+  if (percentile <= 0.1) {
+    return "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200";
+  }
+  if (percentile <= 0.35) {
+    return "bg-orange-50 text-orange-700 ring-1 ring-inset ring-orange-200";
+  }
+  return "bg-red-50 text-red-700 ring-1 ring-inset ring-red-200";
+}
 
 export function StationCard({
   station,
   rank,
   showScore = false,
+  cheapestRank,
+  nearestRank,
+  rankingTotal,
 }: StationCardProps) {
   const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${station.latitude},${station.longitude}`;
   const hasDiscount = station.discountCents > 0;
@@ -52,6 +73,34 @@ export function StationCard({
         <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700">
           <BadgeCheck size={13} aria-hidden="true" />
           Descuento aplicado · −{station.discountCents.toLocaleString("es-ES")} cts/L
+        </div>
+      )}
+
+      {showScore &&
+        cheapestRank !== undefined &&
+        nearestRank !== undefined &&
+        rankingTotal && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          <span
+            className={
+              "rounded-full px-2.5 py-1 text-[11px] font-bold " +
+              rankingBadgeClass(cheapestRank, rankingTotal)
+            }
+          >
+            {cheapestRank === 1
+              ? "La más barata"
+              : "Nº" + cheapestRank + " en precio"}
+          </span>
+          <span
+            className={
+              "rounded-full px-2.5 py-1 text-[11px] font-bold " +
+              rankingBadgeClass(nearestRank, rankingTotal)
+            }
+          >
+            {nearestRank === 1
+              ? "La más cercana"
+              : "Nº" + nearestRank + " en cercanía"}
+          </span>
         </div>
       )}
 
