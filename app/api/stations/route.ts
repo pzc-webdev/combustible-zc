@@ -37,7 +37,7 @@ type CachedMinistryPayload = {
 };
 
 export const runtime = "nodejs";
-export const preferredRegion = "fra1";
+export const preferredRegion = "cdg1";
 export const maxDuration = 60;
 
 const getCompressedMinistryPayload = unstable_cache(
