@@ -192,11 +192,11 @@ export function FuelFinder() {
       <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-12 pt-8 sm:px-8 sm:pb-16 sm:pt-12 lg:px-10">
         <section className="relative mx-auto max-w-5xl px-2 py-8 text-center sm:px-10 sm:py-10">
           <h1 className="text-balance text-[2.35rem] font-extrabold leading-[1.02] tracking-[-0.065em] text-[#17212B] sm:text-6xl">
-            Repostar bien también es{" "}
-            <span className="text-[var(--action)]">elegir mejor.</span>
+            Mejora tu ahorro con solo {" "}
+            <span className="text-[var(--action)]">unos cuantos clics.</span>
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-pretty text-base leading-7 text-[#44505A] sm:text-lg">
-            Encuentra el mejor equilibrio entre precio y distancia.
+            La gasolinera más cercana no siempre es la mejor opción.
           </p>
         </section>
 

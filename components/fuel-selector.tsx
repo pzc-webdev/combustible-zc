@@ -33,7 +33,7 @@ export function FuelSelector({
         <div>
           <p className="eyebrow">Paso 1</p>
           <h2 id="fuel-title" className="section-title">
-            Elige tu combustible
+            Selección de combustible
           </h2>
         </div>
       </div>
