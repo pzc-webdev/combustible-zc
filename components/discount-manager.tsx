@@ -38,7 +38,7 @@ export function DiscountManager({
   };
 
   return (
-    <details className="panel group overflow-hidden">
+    <details className="discount-panel group overflow-hidden">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 sm:p-6">
         <span className="flex min-w-0 items-center gap-3">
           <span className="icon-shell">
@@ -47,25 +47,30 @@ export function DiscountManager({
           <span className="min-w-0">
             <span className="eyebrow block">Opcional</span>
             <span className="section-title block">Mis descuentos</span>
+            {discounts.length === 0 && (
+              <span className="discount-empty-hint">
+                Tus tarjetas pueden cambiar el ranking.
+              </span>
+            )}
           </span>
         </span>
         <span className="flex items-center gap-3">
           {discounts.some((discount) => discount.brand && discount.cents) && (
-            <span className="hidden rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 sm:inline">
+            <span className="hidden rounded-full bg-[var(--saving-bg)] px-2.5 py-1 text-xs font-semibold text-[var(--saving)] sm:inline">
               {discounts.filter((discount) => discount.brand && discount.cents).length}{" "}
               activos
             </span>
           )}
           <ChevronDown
-            className="text-slate-400 transition-transform group-open:rotate-180"
+            className="text-[#57626C] transition-transform group-open:rotate-180"
             size={20}
             aria-hidden="true"
           />
         </span>
       </summary>
 
-      <div className="border-t border-slate-100 px-5 pb-5 pt-4 sm:px-6 sm:pb-6">
-        <p className="mb-4 text-sm leading-6 text-slate-500">
+      <div className="border-t border-[#D8D2C8] px-5 pb-5 pt-4 sm:px-6 sm:pb-6">
+        <p className="mb-4 text-sm leading-6 text-[#44505A]">
           Añade el descuento de tus tarjetas o programas de fidelización. Si
           varias reglas coinciden, aplicaremos la mayor.
         </p>
@@ -122,7 +127,7 @@ export function DiscountManager({
         </div>
 
         {discounts.length === 0 && (
-          <p className="rounded-xl border border-dashed border-slate-200 px-4 py-5 text-center text-sm text-slate-400">
+          <p className="rounded-xl border border-dashed border-[#D8D2C8] bg-[var(--saving-bg)]/45 px-4 py-5 text-center text-sm text-[#44505A]">
             Todavía no has añadido ningún descuento.
           </p>
         )}
@@ -131,7 +136,7 @@ export function DiscountManager({
           type="button"
           disabled={disabled}
           onClick={addDiscount}
-          className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 transition hover:text-emerald-800 disabled:opacity-50"
+          className="mt-4 inline-flex items-center gap-2 rounded-lg border border-[var(--saving-accent)]/25 bg-[var(--saving-bg)] px-3 py-2 text-sm font-semibold text-[var(--saving)] transition-all duration-300 hover:border-[var(--saving-accent)]/50 hover:bg-[var(--saving-hover)] disabled:opacity-50"
         >
           <Plus size={17} aria-hidden="true" />
           Añadir descuento

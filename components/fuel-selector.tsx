@@ -25,8 +25,8 @@ export function FuelSelector({
   disabled,
 }: FuelSelectorProps) {
   return (
-    <section aria-labelledby="fuel-title" className="panel p-5 sm:p-6">
-      <div className="mb-5 flex items-center gap-3">
+    <section aria-labelledby="fuel-title" className="step-panel p-5 sm:p-6">
+      <div className="mb-6 flex items-center gap-3">
         <span className="icon-shell">
           <Fuel aria-hidden="true" size={20} />
         </span>

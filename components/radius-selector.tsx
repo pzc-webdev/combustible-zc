@@ -1,6 +1,8 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { CircleDotDashed } from "lucide-react";
+import { InfoTooltip } from "@/components/info-tooltip";
 import {
   MAX_RADIUS_KM,
   MIN_RADIUS_KM,
@@ -18,23 +20,35 @@ export function RadiusSelector({
   onChange,
   disabled,
 }: RadiusSelectorProps) {
+  const sliderProgress =
+    ((value - MIN_RADIUS_KM) / (MAX_RADIUS_KM - MIN_RADIUS_KM)) * 100;
+
   return (
-    <section aria-labelledby="radius-title" className="panel p-5 sm:p-6">
+    <section aria-labelledby="radius-title" className="step-panel p-5 sm:p-6">
       <div className="flex items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
           <span className="icon-shell">
             <CircleDotDashed aria-hidden="true" size={20} />
           </span>
           <div>
-            <p className="eyebrow">Área de búsqueda</p>
-            <h2 id="radius-title" className="section-title">
-              Radio máximo
-            </h2>
+            <p className="eyebrow">Paso 2</p>
+            <div className="flex items-center gap-2">
+              <h2 id="radius-title" className="section-title">
+                Radio máximo
+              </h2>
+              <InfoTooltip
+                id="radius-tooltip"
+                label="Información sobre el radio de búsqueda"
+              >
+                Define la distancia máxima desde tu ubicación. Solo se
+                mostrarán estaciones dentro de ese radio.
+              </InfoTooltip>
+            </div>
           </div>
         </div>
         <output
           htmlFor="radius-range"
-          className="shrink-0 rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-extrabold text-emerald-700"
+          className="shrink-0 font-[var(--font-ibm-plex-mono)] text-2xl font-bold tracking-[-0.05em] text-[#2B7A9A]"
         >
           {value} km
         </output>
@@ -50,6 +64,7 @@ export function RadiusSelector({
         disabled={disabled}
         onChange={(event) => onChange(Number(event.target.value))}
         className="range-input mt-5"
+        style={{ "--range-progress": `${sliderProgress}%` } as CSSProperties}
         aria-label={`Radio máximo de búsqueda: ${value} kilómetros`}
       />
 

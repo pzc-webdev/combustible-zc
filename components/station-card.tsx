@@ -15,15 +15,15 @@ type StationCardProps = {
 
 function rankingBadgeClass(rank: number, total: number): string {
   if (rank === 1) {
-    return "bg-amber-50 text-amber-800 ring-1 ring-inset ring-amber-300";
+    return "bg-[var(--saving-bg)] text-[var(--saving)] ring-1 ring-inset ring-[var(--saving-border)]";
   }
 
   const percentile = rank / total;
   if (percentile <= 0.1) {
-    return "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200";
+    return "bg-[var(--saving-bg)] text-[var(--saving)] ring-1 ring-inset ring-[var(--saving-border)]";
   }
   if (percentile <= 0.35) {
-    return "bg-orange-50 text-orange-700 ring-1 ring-inset ring-orange-200";
+    return "bg-[var(--rank-medium-bg)] text-[var(--rank-medium)] ring-1 ring-inset ring-[var(--rank-medium-border)]";
   }
   return "bg-red-50 text-red-700 ring-1 ring-inset ring-red-200";
 }
@@ -40,7 +40,13 @@ export function StationCard({
   const hasDiscount = station.discountCents > 0;
 
   return (
-    <article className="station-card">
+    <article
+      className={
+        showScore && rank === 1
+          ? "station-card station-card-winner"
+          : "station-card"
+      }
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="mb-1.5 flex items-center gap-2">
@@ -48,21 +54,24 @@ export function StationCard({
             {showScore && (
               <span className="score-badge">{station.score} pts</span>
             )}
+            {showScore && rank === 1 && (
+              <span className="winner-label">Mejor relación</span>
+            )}
           </div>
-          <h3 className="truncate text-[15px] font-bold tracking-[-0.01em] text-slate-900">
+          <h3 className="truncate text-[15px] font-bold tracking-[-0.01em] text-[#17212B]">
             {station.brand}
           </h3>
         </div>
 
-        <div className="shrink-0 text-right">
-          <p className="font-mono text-[1.55rem] font-bold leading-none tracking-[-0.05em] text-emerald-700">
+        <div className="shrink-0 rounded-lg border border-[var(--saving-border)] bg-[var(--saving-bg)] px-2.5 py-2 text-right">
+          <p className="font-[var(--font-ibm-plex-mono)] text-[1.9rem] font-bold leading-none tracking-[-0.04em] text-[var(--saving)]">
             {priceFormatter.format(station.finalPrice)}
-            <span className="ml-1 font-sans text-xs font-semibold tracking-normal text-slate-500">
+            <span className="ml-1 font-[var(--font-manrope)] text-xs font-bold tracking-normal text-[var(--saving)]">
               €/L
             </span>
           </p>
           {hasDiscount && (
-            <p className="mt-1 text-xs text-slate-400 line-through">
+            <p className="mt-1 text-xs text-[var(--saving)]/70 line-through">
               {priceFormatter.format(station.originalPrice)} €/L
             </p>
           )}
@@ -70,7 +79,7 @@ export function StationCard({
       </div>
 
       {hasDiscount && (
-        <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700">
+        <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-[var(--saving-border)] bg-[var(--saving-bg)] px-2.5 py-1 text-[11px] font-bold text-[var(--saving)]">
           <BadgeCheck size={13} aria-hidden="true" />
           Descuento aplicado · −{station.discountCents.toLocaleString("es-ES")} cts/L
         </div>
@@ -104,24 +113,24 @@ export function StationCard({
         </div>
       )}
 
-      <div className="mt-4 border-t border-slate-100 pt-3">
-        <p className="line-clamp-1 text-sm text-slate-600">{station.address}</p>
+      <div className="mt-4 border-t border-[#D8D2C8] pt-3">
+        <p className="line-clamp-1 text-sm text-[#44505A]">{station.address}</p>
         {station.locality && (
-          <p className="mt-0.5 line-clamp-1 text-xs text-slate-400">
+          <p className="mt-0.5 line-clamp-1 text-xs text-[#44505A]">
             {station.locality}
           </p>
         )}
 
         <div className="mt-3 flex items-center justify-between">
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600">
-            <MapPin size={14} className="text-emerald-600" aria-hidden="true" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#44505A]">
+            <MapPin size={14} className="text-[#2B7A9A]" aria-hidden="true" />
             {formatDistance(station.distanceKm)}
           </span>
           <a
             href={mapsUrl}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 transition hover:text-emerald-700"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-[#44505A] transition-all duration-300 hover:text-[#143642]"
             aria-label={`Cómo llegar a ${station.brand}`}
           >
             Cómo llegar

@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   AlertCircle,
-  Fuel,
   LoaderCircle,
   LocateFixed,
   MapPinned,
@@ -179,66 +178,66 @@ export function FuelFinder() {
   const noResults = status === "success" && results.cheapest.length === 0;
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="flex min-h-dvh flex-col bg-[#F4F0E8] text-[#17212B]">
       <main className="relative flex-1 overflow-hidden">
         <div className="hero-glow" aria-hidden="true" />
 
-      <header className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-10">
-        <a href="#" className="flex items-center gap-2.5" aria-label="Inicio">
-          <span className="flex size-9 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-lg shadow-emerald-600/20">
-            <Fuel size={19} aria-hidden="true" />
+      <header className="relative z-10 mx-auto flex w-full max-w-7xl items-center justify-between px-5 pt-5 sm:px-8 sm:pt-7 lg:px-10">
+
+          <span className="text-sm font-extrabold tracking-[-0.035em] text-[#17212B] sm:text-base">
+            combustible<span className="text-[var(--action)]">zc</span>
           </span>
-          <span className="text-sm font-extrabold tracking-[-0.02em] text-slate-900 sm:text-base">
-            combustible<span className="text-emerald-600">zc</span>
-          </span>
-        </a>
       </header>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-5 pb-12 pt-7 sm:px-8 sm:pb-20 sm:pt-16 lg:px-10">
-        <section className="mx-auto max-w-3xl text-center">
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50/80 px-3 py-1.5 text-xs font-bold text-emerald-700">
-            <MapPinned size={14} aria-hidden="true" />
-            Compara precios reales en {radiusKm} km
-          </div>
-          <h1 className="text-balance text-[2.35rem] font-extrabold leading-[1.05] tracking-[-0.055em] text-slate-950 sm:text-6xl">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-12 pt-8 sm:px-8 sm:pb-16 sm:pt-12 lg:px-10">
+        <section className="relative mx-auto max-w-5xl px-2 py-8 text-center sm:px-10 sm:py-10">
+          <h1 className="text-balance text-[2.35rem] font-extrabold leading-[1.02] tracking-[-0.065em] text-[#17212B] sm:text-6xl">
             Repostar bien también es{" "}
-            <span className="text-emerald-600">elegir mejor.</span>
+            <span className="text-[var(--action)]">elegir mejor.</span>
           </h1>
-          <p className="mx-auto mt-5 max-w-xl text-pretty text-base leading-7 text-slate-500 sm:text-lg">
-            Encuentra el mejor equilibrio entre precio y distancia, incluyendo
-            los descuentos que ya tienes.
+          <p className="mx-auto mt-4 max-w-xl text-pretty text-base leading-7 text-[#44505A] sm:text-lg">
+            Encuentra el mejor equilibrio entre precio y distancia.
           </p>
         </section>
 
         <section
-          className="mx-auto mt-8 grid max-w-4xl gap-4 sm:mt-10 "
+          className="configurator mx-auto mt-4 grid max-w-6xl overflow-hidden lg:mt-5 lg:grid-cols-12"
           aria-label="Preferencias de búsqueda"
         >
-          <FuelSelector
-            value={selection}
-            onChange={setSelection}
-            disabled={isSearching}
-          />
-          <div className="space-y-4">
+          <div className="config-step config-step-fuel lg:col-span-7">
+            <FuelSelector
+              value={selection}
+              onChange={setSelection}
+              disabled={isSearching}
+            />
+          </div>
+          <div className="config-step config-step-radius lg:col-span-5">
             <RadiusSelector
               value={radiusKm}
               onChange={setRadiusKm}
               disabled={isSearching}
             />
+          </div>
+          <div className="config-step config-step-score lg:col-span-12">
             <ScoreWeightSelector
               priceWeight={priceWeight}
               onChange={setPriceWeight}
               disabled={isSearching}
             />
+          </div>
+          <div className="config-step config-step-discounts lg:col-span-12">
             <DiscountManager
               discounts={discounts}
               onChange={setDiscounts}
               disabled={isSearching}
             />
           </div>
-        </section>
-
-        <section className="mx-auto mt-6 max-w-xl text-center">
+          <section className="config-action relative overflow-hidden bg-[#143642] px-5 py-6 text-center sm:px-7 lg:col-span-12">
+          <div className="pointer-events-none absolute -right-10 -top-16 size-48 rounded-full border border-white/10" />
+          <div className="pointer-events-none absolute -right-2 -top-8 size-32 rounded-full border border-white/10" />
+          <p className="relative mb-3 font-[var(--font-ibm-plex-mono)] text-[11px] font-medium tracking-[0.08em] text-white/65">
+            {selection.family === "gasoline" ? "GASOLINA" : "GASOIL"} · {selection.grade === "normal" ? "NORMAL" : "PREMIUM"} · {radiusKm} KM · PRECIO {priceWeight}%
+          </p>
           <button
             type="button"
             onClick={search}
@@ -260,10 +259,11 @@ export function FuelFinder() {
                   ? "Actualizar mi búsqueda"
                   : "Buscar cerca de mí"}
           </button>
-          <p className="mt-3 text-xs text-slate-400">
+          <p className="relative mt-3 text-[11px] text-white/60">
             Tu ubicación solo se utiliza para calcular distancias y limitar los
             resultados a tu zona.
           </p>
+          </section>
         </section>
 
         {status === "error" && (
@@ -280,12 +280,12 @@ export function FuelFinder() {
         )}
 
         {noResults && (
-          <div className="mx-auto mt-10 max-w-xl rounded-2xl border border-slate-200 bg-white px-6 py-10 text-center shadow-sm">
-            <MapPinned className="mx-auto text-slate-300" size={34} aria-hidden="true" />
-            <h2 className="mt-4 font-bold text-slate-900">
+          <div className="mx-auto mt-8 max-w-xl rounded-xl border border-[#D8D2C8] bg-[#FFFCF5] px-6 py-10 text-center shadow-[0_14px_30px_rgba(23,33,43,0.06)]">
+            <MapPinned className="mx-auto text-[#2B7A9A]" size={34} aria-hidden="true" />
+            <h2 className="mt-4 font-bold text-[#17212B]">
               No hay estaciones disponibles
             </h2>
-            <p className="mt-2 text-sm leading-6 text-slate-500">
+            <p className="mt-2 text-sm leading-6 text-[#44505A]">
               No encontramos estaciones con precio para este combustible a
               menos de {radiusKm} km. Prueba otra variante o amplía el radio.
             </p>
@@ -303,8 +303,8 @@ export function FuelFinder() {
       </div>
       </main>
 
-      <footer className="border-t border-slate-200/70 bg-white/50">
-        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-5 py-6 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-10">
+      <footer className="border-t border-[#D8D2C8] bg-[#FFFCF5]/55">
+        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-5 py-6 text-xs text-[#44505A] sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-10">
           <p>Precios del Ministerio para la Transición Ecológica de España.</p>
           <p>El precio final es orientativo y depende de tu descuento.</p>
         </div>

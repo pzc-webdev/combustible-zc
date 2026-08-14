@@ -1,6 +1,8 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { SlidersHorizontal } from "lucide-react";
+import { InfoTooltip } from "@/components/info-tooltip";
 
 type ScoreWeightSelectorProps = {
   priceWeight: number;
@@ -22,33 +24,45 @@ export function ScoreWeightSelector({
   const distanceWeight = 100 - priceWeight;
 
   return (
-    <section aria-labelledby="score-weight-title" className="panel p-5 sm:p-6">
+    <section
+      aria-labelledby="score-weight-title"
+      className="step-panel p-5 sm:p-6"
+    >
       <div className="flex items-center gap-3">
         <span className="icon-shell">
           <SlidersHorizontal aria-hidden="true" size={20} />
         </span>
         <div>
-          <p className="eyebrow">Mejor opción</p>
-          <h2 id="score-weight-title" className="section-title">
-            Prioridad del cálculo
-          </h2>
+          <p className="eyebrow">Paso 3</p>
+          <div className="flex items-center gap-2">
+            <h2 id="score-weight-title" className="section-title">
+              Prioridad del cálculo
+            </h2>
+            <InfoTooltip
+              id="score-weight-tooltip"
+              label="Información sobre la prioridad del cálculo"
+            >
+              Un porcentaje de precio más alto da más importancia al coste por
+              litro; el porcentaje restante pondera la distancia.
+            </InfoTooltip>
+          </div>
         </div>
       </div>
 
-      <div className="mt-5 grid grid-cols-2 gap-2">
-        <div className="rounded-lg bg-emerald-50 px-3 py-2">
-          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-700">
+      <div className="priority-readout mt-5 grid grid-cols-2 gap-2">
+        <div className="priority-price rounded-lg px-3 py-2">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em]">
             Precio
           </p>
-          <p className="mono-price mt-0.5 text-lg font-bold tabular-nums text-emerald-800">
+          <p className="mt-0.5 font-[var(--font-ibm-plex-mono)] text-2xl font-bold tabular-nums tracking-[-0.05em]">
             {priceWeight}%
           </p>
         </div>
-        <div className="rounded-lg bg-slate-100 px-3 py-2">
-          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">
+        <div className="priority-distance rounded-lg px-3 py-2 text-right">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em]">
             Distancia
           </p>
-          <p className="mono-price mt-0.5 text-lg font-bold tabular-nums text-slate-700">
+          <p className="mt-0.5 font-[var(--font-ibm-plex-mono)] text-2xl font-bold tabular-nums tracking-[-0.05em]">
             {distanceWeight}%
           </p>
         </div>
@@ -63,7 +77,8 @@ export function ScoreWeightSelector({
         value={priceWeight}
         disabled={disabled}
         onChange={(event) => onChange(Number(event.target.value))}
-        className="range-input mt-5"
+        className="range-input priority-range mt-5"
+        style={{ "--range-progress": `${priceWeight}%` } as CSSProperties}
         aria-label={
           "Peso del precio: " +
           priceWeight +
@@ -81,7 +96,7 @@ export function ScoreWeightSelector({
             disabled={disabled}
             aria-pressed={priceWeight === preset.value}
             onClick={() => onChange(preset.value)}
-            className="radius-preset px-1 text-[10px]"
+            className="radius-preset priority-preset px-1 text-[10px]"
           >
             {preset.label}
           </button>
