@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import {
   AlertCircle,
@@ -178,25 +179,18 @@ export function FuelFinder() {
   const noResults = status === "success" && results.cheapest.length === 0;
 
   return (
-    <div className="flex min-h-dvh flex-col bg-[#F4F0E8] text-[#17212B]">
+    <div className="flex min-h-dvh flex-col bg-[var(--background)] text-[#17212B]">
       <main className="relative flex-1 overflow-hidden">
         <div className="hero-glow" aria-hidden="true" />
-
-      <header className="relative z-10 mx-auto flex w-full max-w-7xl items-center justify-between px-5 pt-5 sm:px-8 sm:pt-7 lg:px-10">
-
-          <span className="text-sm font-extrabold tracking-[-0.035em] text-[#17212B] sm:text-base">
-            combustible<span className="text-[var(--action)]">zc</span>
-          </span>
-      </header>
 
       <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-12 pt-8 sm:px-8 sm:pb-16 sm:pt-12 lg:px-10">
         <section className="relative mx-auto max-w-5xl px-2 py-8 text-center sm:px-10 sm:py-10">
           <h1 className="text-balance text-[2.35rem] font-extrabold leading-[1.02] tracking-[-0.065em] text-[#17212B] sm:text-6xl">
-            Mejora tu ahorro con solo {" "}
-            <span className="text-[var(--action)]">unos cuantos clics.</span>
+            No hagas kilómetros de más. Paga {" "}
+            <span className="text-[var(--action)]">de menos.</span>
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-pretty text-base leading-7 text-[#44505A] sm:text-lg">
-            La gasolinera más cercana no siempre es la mejor opción.
+            La gasolinera más cercana no siempre es la mejor opción. Mejora tu ahorro con solo unos cuantos clics.
           </p>
         </section>
 
@@ -280,7 +274,7 @@ export function FuelFinder() {
         )}
 
         {noResults && (
-          <div className="mx-auto mt-8 max-w-xl rounded-xl border border-[#D8D2C8] bg-[#FFFCF5] px-6 py-10 text-center shadow-[0_14px_30px_rgba(23,33,43,0.06)]">
+          <div className="mx-auto mt-8 max-w-xl rounded-xl border border-[var(--line)] bg-[var(--surface-soft)] px-6 py-10 text-center shadow-[0_14px_30px_rgba(23,33,43,0.06)]">
             <MapPinned className="mx-auto text-[#2B7A9A]" size={34} aria-hidden="true" />
             <h2 className="mt-4 font-bold text-[#17212B]">
               No hay estaciones disponibles
@@ -303,7 +297,7 @@ export function FuelFinder() {
       </div>
       </main>
 
-      <footer className="border-t border-[#D8D2C8] bg-[#FFFCF5]/55">
+      <footer className="border-t border-[var(--line)] bg-[color-mix(in_srgb,var(--surface)_62%,transparent)]">
         <div className="mx-auto flex max-w-7xl flex-col gap-2 px-5 py-6 text-xs text-[#44505A] sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-10">
           <p>Precios del Ministerio para la Transición Ecológica de España.</p>
           <p>El precio final es orientativo y depende de tu descuento.</p>

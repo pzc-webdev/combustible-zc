@@ -69,7 +69,7 @@ function ResultColumn({
 
   return (
     <section aria-labelledby={`${listKey}-title`} className="result-column">
-      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-[#D8D2C8] bg-[#FFFCF5]/94 px-4 py-4 backdrop-blur sm:px-5">
+      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-[var(--line)] bg-[color-mix(in_srgb,var(--surface-soft)_94%,transparent)] px-4 py-4 backdrop-blur sm:px-5">
         <span
           className={`result-icon ${listKey === "smartest" ? "result-icon-smart" : ""}`}
         >
@@ -103,7 +103,7 @@ function ResultColumn({
             onClick={() =>
               setVisibleCount((current) => current + STATIONS_PER_PAGE)
             }
-            className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#D8D2C8] bg-[#FFFCF5] px-4 py-3 text-sm font-bold text-[#143642] transition-all duration-300 hover:border-[#2B7A9A] hover:bg-[#E5F1F5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--action)] focus-visible:ring-offset-2"
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-[var(--line)] bg-[var(--surface-soft)] px-4 py-3 text-sm font-bold text-[#143642] transition-all duration-300 hover:border-[#2B7A9A] hover:bg-[#E5F1F5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--action)] focus-visible:ring-offset-2"
           >
             Mostrar 20 más
             <ChevronDown size={17} aria-hidden="true" />
@@ -154,7 +154,7 @@ export function ResultsBoard({
       </div>
 
       <div
-        className="mb-4 grid grid-cols-3 gap-1 rounded-lg border border-[#D8D2C8] bg-[#EDEAE3] p-1 lg:hidden"
+        className="mb-4 grid grid-cols-3 gap-1 rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] p-1 lg:hidden"
         role="tablist"
         aria-label="Orden de resultados"
       >
@@ -171,7 +171,7 @@ export function ResultsBoard({
               className={`flex items-center justify-center gap-1.5 rounded-md px-2 py-2.5 text-xs font-bold transition-all duration-300 ${
                 selected
                   ? "bg-[#143642] text-white shadow-[0_4px_10px_rgba(20,54,66,0.18)] hover:bg-[#1D4857] hover:shadow-[0_6px_14px_rgba(20,54,66,0.26)]"
-                  : "text-[#57626C] hover:bg-[#FFFCF5]/85 hover:text-[#143642]"
+                  : "text-[#57626C] hover:bg-[var(--surface-soft)] hover:text-[#143642]"
               }`}
             >
               <Icon size={15} aria-hidden="true" />

@@ -87,7 +87,7 @@ export function DiscountManager({
         </span>
       </summary>
 
-      <div className="border-t border-[#D8D2C8] px-5 pb-5 pt-4 sm:px-6 sm:pb-6">
+      <div className="border-t border-[var(--line)] px-5 pb-5 pt-4 sm:px-6 sm:pb-6">
         <p className="mb-4 text-sm leading-6 text-[#44505A]">
           Añade el descuento de tus tarjetas o programas de fidelización.
         </p>
@@ -144,7 +144,7 @@ export function DiscountManager({
         </div>
 
         <form
-          className={`${discounts.length > 0 ? "mt-4 border-t border-[#D8D2C8] pt-4" : ""}`}
+          className={`${discounts.length > 0 ? "mt-4 border-t border-[var(--line)] pt-4" : ""}`}
           onSubmit={(event) => {
             event.preventDefault();
             addDiscount();

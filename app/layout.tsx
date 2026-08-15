@@ -15,7 +15,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Combustible ZC",
+  title: "demenos",
   description:
     "Encuentra las gasolineras más baratas y cercanas, aplicando tus descuentos por marca.",
 };

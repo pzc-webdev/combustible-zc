@@ -113,7 +113,7 @@ export function StationCard({
         </div>
       )}
 
-      <div className="mt-4 border-t border-[#D8D2C8] pt-3">
+      <div className="mt-4 border-t border-[var(--line)] pt-3">
         <p className="line-clamp-1 text-sm text-[#44505A]">{station.address}</p>
         {station.locality && (
           <p className="mt-0.5 line-clamp-1 text-xs text-[#44505A]">

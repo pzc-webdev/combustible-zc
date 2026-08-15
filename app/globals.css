@@ -1,9 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4f0e8;
+  --background: #faf7f0;
   --foreground: #17212b;
-  --surface: #fffcf5;
+  --surface: #fff8e8;
+  --surface-soft: #fffdf7;
+  --surface-muted: #f5eee0;
   --muted: #44505a;
   --petrol: #143642;
   --action: #2f65c8;
@@ -26,7 +28,7 @@
   --winner: #756aa8;
   --winner-text: #514879;
   --winner-soft: #eeeaf7;
-  --line: #d8d2c8;
+  --line: #ded7ca;
 }
 
 * {
@@ -115,7 +117,7 @@ input:focus-visible {
   border: 1px solid var(--line);
   border-radius: 1.35rem;
   background:
-    linear-gradient(135deg, rgba(255, 252, 245, 0.88), rgba(255, 252, 245, 0.7)),
+    linear-gradient(135deg, rgba(255, 253, 247, 0.96), rgba(255, 248, 232, 0.86)),
     var(--surface);
   box-shadow: 0 18px 42px rgba(23, 33, 43, 0.07);
   backdrop-filter: blur(16px);
@@ -147,7 +149,7 @@ input:focus-visible {
   overflow: hidden;
   border: 1px solid rgba(20, 54, 66, 0.14);
   border-radius: 0.75rem;
-  background: rgba(255, 252, 245, 0.62);
+  background: color-mix(in srgb, var(--surface-soft) 82%, transparent);
 }
 
 .priority-price,
@@ -225,9 +227,9 @@ input:focus-visible {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.3rem;
   padding: 0.28rem;
-  border: 1px solid #d8d2c8;
+  border: 1px solid var(--line);
   border-radius: 0.65rem;
-  background: rgba(240, 236, 227, 0.74);
+  background: color-mix(in srgb, var(--surface-muted) 72%, transparent);
 }
 
 .segment-button {
@@ -243,7 +245,7 @@ input:focus-visible {
 }
 
 .segment-button:not([aria-pressed="true"]):hover:not(:disabled) {
-  background: rgba(255, 252, 245, 0.92);
+  background: var(--surface-soft);
   color: var(--petrol);
 }
 
@@ -275,7 +277,7 @@ input:focus-visible {
 .range-input {
   --range-progress: 50%;
   --range-fill: var(--distance);
-  --range-remainder: #d8d2c8;
+  --range-remainder: var(--line);
   width: 100%;
   height: 1.5rem;
   appearance: none;
@@ -313,7 +315,7 @@ input:focus-visible {
   height: 1.2rem;
   margin-top: -0.39rem;
   appearance: none;
-  border: 3px solid #ffffff;
+  border: 3px solid var(--surface-soft);
   border-radius: 9999px;
   background: var(--petrol);
   box-shadow:
@@ -324,7 +326,7 @@ input:focus-visible {
 .range-input::-moz-range-thumb {
   width: 0.94rem;
   height: 0.94rem;
-  border: 3px solid #ffffff;
+  border: 3px solid var(--surface-soft);
   border-radius: 9999px;
   background: var(--petrol);
   box-shadow:
@@ -338,10 +340,10 @@ input:focus-visible {
 }
 
 .radius-preset {
-  border: 1px solid #d8d2c8;
+  border: 1px solid var(--line);
   border-radius: 0.5rem;
   padding: 0.48rem 0.15rem;
-  background: rgba(255, 252, 245, 0.88);
+  background: var(--surface-soft);
   color: #57626c;
   font-size: 0.72rem;
   font-weight: 800;
@@ -369,10 +371,10 @@ input:focus-visible {
 .text-input {
   width: 100%;
   height: 2.55rem;
-  border: 1px solid #d8d2c8;
+  border: 1px solid var(--line);
   border-radius: 0.55rem;
   padding: 0 0.8rem;
-  background: rgba(255, 252, 245, 0.9);
+  background: var(--surface-soft);
   color: var(--foreground);
   font-size: 0.8rem;
   transition: border-color 220ms ease, box-shadow 220ms ease, background 220ms ease;
@@ -388,7 +390,7 @@ input:focus-visible {
 
 .text-input:focus {
   border-color: var(--distance);
-  background: #ffffff;
+  background: var(--surface);
   box-shadow: 0 0 0 3px rgba(43, 122, 154, 0.12);
   outline: none;
 }
@@ -399,9 +401,9 @@ input:focus-visible {
   height: 2.55rem;
   align-items: center;
   justify-content: center;
-  border: 1px solid #d8d2c8;
+  border: 1px solid var(--line);
   border-radius: 0.55rem;
-  background: rgba(255, 252, 245, 0.9);
+  background: var(--surface-soft);
   color: #697783;
   cursor: pointer;
   transition: border-color 220ms ease, background 220ms ease, color 220ms ease;
@@ -455,9 +457,9 @@ input:focus-visible {
 
 .result-column {
   overflow: hidden;
-  border: 1px solid #d8d2c8;
+  border: 1px solid var(--line);
   border-radius: 1rem;
-  background: rgba(255, 252, 245, 0.68);
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
   box-shadow: 0 12px 32px rgba(23, 33, 43, 0.06);
   backdrop-filter: blur(12px);
 }
@@ -481,10 +483,10 @@ input:focus-visible {
 .station-card {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(216, 210, 200, 0.92);
+  border: 1px solid color-mix(in srgb, var(--line) 92%, transparent);
   border-radius: 0.85rem;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.72);
+  background: color-mix(in srgb, var(--surface-soft) 88%, transparent);
   box-shadow: 0 2px 0 rgba(23, 33, 43, 0.025);
   transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
 }
