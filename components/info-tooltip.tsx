@@ -20,7 +20,7 @@ export function InfoTooltip({ id, label, children }: InfoTooltipProps) {
       <span
         id={id}
         role="tooltip"
-        className="pointer-events-none invisible absolute bottom-[calc(100%+0.65rem)] left-1/2 z-40 w-[min(16rem,calc(100vw-3rem))] -translate-x-1/2 rounded-lg bg-[#143642] px-3 py-2.5 text-left text-xs font-medium leading-5 text-white opacity-0 shadow-[0_10px_28px_rgba(20,54,66,0.24)] transition-all duration-200 before:absolute before:left-1/2 before:top-full before:-translate-x-1/2 before:border-4 before:border-transparent before:border-t-[#143642] group-hover:visible group-hover:translate-y-[-2px] group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-[-2px] group-focus-within:opacity-100"
+        className="pointer-events-none invisible absolute left-[calc(100%+0.65rem)] top-1/2 z-40 w-[min(16rem,calc(100vw-11rem))] -translate-y-1/2 rounded-lg bg-[#143642] px-3 py-2.5 text-left text-xs font-medium leading-5 text-white opacity-0 shadow-[0_10px_28px_rgba(20,54,66,0.24)] transition-all duration-200 before:absolute before:right-full before:top-1/2 before:-translate-y-1/2 before:border-4 before:border-transparent before:border-r-[#143642] group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100"
       >
         {children}
       </span>

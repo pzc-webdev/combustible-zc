@@ -11,9 +11,9 @@ type ScoreWeightSelectorProps = {
 };
 
 const PRESETS = [
+  { label: "Distancia", value: 30 },
   { label: "Equilibrado", value: 50 },
   { label: "Precio", value: 70 },
-  { label: "Muy barato", value: 85 },
 ] as const;
 
 export function ScoreWeightSelector({

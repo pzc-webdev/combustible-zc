@@ -201,17 +201,17 @@ export function FuelFinder() {
         </section>
 
         <section
-          className="configurator mx-auto mt-4 grid max-w-6xl overflow-hidden lg:mt-5 lg:grid-cols-12"
+          className="configurator mx-auto mt-4 grid max-w-6xl lg:mt-5 lg:grid-cols-12"
           aria-label="Preferencias de búsqueda"
         >
-          <div className="config-step config-step-fuel lg:col-span-7">
+          <div className="config-step config-step-fuel lg:col-span-5">
             <FuelSelector
               value={selection}
               onChange={setSelection}
               disabled={isSearching}
             />
           </div>
-          <div className="config-step config-step-radius lg:col-span-5">
+          <div className="config-step config-step-radius lg:col-span-7">
             <RadiusSelector
               value={radiusKm}
               onChange={setRadiusKm}

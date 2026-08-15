@@ -89,8 +89,7 @@ export function DiscountManager({
 
       <div className="border-t border-[#D8D2C8] px-5 pb-5 pt-4 sm:px-6 sm:pb-6">
         <p className="mb-4 text-sm leading-6 text-[#44505A]">
-          Añade el descuento de tus tarjetas o programas de fidelización. Si
-          varias reglas coinciden, aplicaremos la mayor.
+          Añade el descuento de tus tarjetas o programas de fidelización.
         </p>
 
         <div className="space-y-3">
