@@ -15,9 +15,9 @@
   --saving-accent: #7b4fa3;
   --saving-border: #c6a9dc;
   --saving-hover: #e6d8f0;
-  --rank-gold-bg: #fff3cc;
-  --rank-gold: #805b00;
-  --rank-gold-border: #d4af37;
+  --rank-gold-bg: #d4af37;
+  --rank-gold: #493000;
+  --rank-gold-border: #a67c19;
   --rank-good-bg: #dcfce7;
   --rank-good: #166534;
   --rank-good-border: #86efac;
@@ -505,6 +505,27 @@ input:focus-visible {
   box-shadow:
     inset 4px 0 var(--winner),
     0 8px 18px color-mix(in srgb, var(--winner) 14%, transparent);
+}
+
+.ranking-badge-gold {
+  position: relative;
+  background: linear-gradient(135deg, #f3d878 0%, var(--rank-gold-bg) 48%, #c99a28 100%);
+  color: var(--rank-gold);
+  box-shadow:
+    inset 0 0 0 1px var(--rank-gold-border),
+    inset 0 2px 0 rgb(255 255 255 / 35%),
+    0 2px 5px rgb(130 88 0 / 18%);
+}
+
+.ranking-crown {
+  position: absolute;
+  top: -12px;
+  left: -5px;
+  color: #785000;
+  fill: var(--rank-gold-bg);
+  transform: rotate(-20deg);
+  filter: drop-shadow(0 1px 1px rgb(130 88 0 / 20%));
+  pointer-events: none;
 }
 
 .winner-label {

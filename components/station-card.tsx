@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgeCheck, MapPin, Navigation } from "lucide-react";
+import { BadgeCheck, Crown, MapPin, Navigation } from "lucide-react";
 import { formatDistance, priceFormatter } from "@/lib/format";
 import type { StationResult } from "@/lib/types";
 
@@ -15,7 +15,7 @@ type StationCardProps = {
 
 function rankingBadgeClass(rank: number, total: number): string {
   if (rank === 1) {
-    return "bg-[var(--rank-gold-bg)] text-[var(--rank-gold)] ring-1 ring-inset ring-[var(--rank-gold-border)]";
+    return "ranking-badge-gold";
   }
 
   const percentile = rank / total;
@@ -89,13 +89,16 @@ export function StationCard({
         cheapestRank !== undefined &&
         nearestRank !== undefined &&
         rankingTotal && (
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-4 flex flex-wrap gap-x-3 gap-y-4">
           <span
             className={
               "rounded-full px-2.5 py-1 text-[11px] font-bold " +
               rankingBadgeClass(cheapestRank, rankingTotal)
             }
           >
+            {cheapestRank === 1 && (
+              <Crown className="ranking-crown" size={19} strokeWidth={1.8} aria-hidden="true" />
+            )}
             {cheapestRank === 1
               ? "La más barata"
               : "Nº" + cheapestRank + " en precio"}
@@ -106,6 +109,9 @@ export function StationCard({
               rankingBadgeClass(nearestRank, rankingTotal)
             }
           >
+            {nearestRank === 1 && (
+              <Crown className="ranking-crown" size={19} strokeWidth={1.8} aria-hidden="true" />
+            )}
             {nearestRank === 1
               ? "La más cercana"
               : "Nº" + nearestRank + " en cercanía"}
