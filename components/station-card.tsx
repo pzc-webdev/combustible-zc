@@ -7,7 +7,7 @@ import type { StationResult } from "@/lib/types";
 type StationCardProps = {
   station: StationResult;
   rank: number;
-  showScore?: boolean;
+  showRecommendation?: boolean;
   cheapestRank?: number;
   nearestRank?: number;
   rankingTotal?: number;
@@ -31,7 +31,7 @@ function rankingBadgeClass(rank: number, total: number): string {
 export function StationCard({
   station,
   rank,
-  showScore = false,
+  showRecommendation = false,
   cheapestRank,
   nearestRank,
   rankingTotal,
@@ -42,7 +42,7 @@ export function StationCard({
   return (
     <article
       className={
-        showScore && rank === 1
+        showRecommendation && rank === 1
           ? "station-card station-card-winner"
           : "station-card"
       }
@@ -51,10 +51,7 @@ export function StationCard({
         <div className="min-w-0">
           <div className="mb-1.5 flex items-center gap-2">
             <span className="rank-badge">{rank}</span>
-            {showScore && (
-              <span className="score-badge">{station.score} pts</span>
-            )}
-            {showScore && rank === 1 && (
+            {showRecommendation && rank === 1 && (
               <span className="winner-label">Mejor relación</span>
             )}
           </div>
@@ -85,7 +82,7 @@ export function StationCard({
         </div>
       )}
 
-      {showScore &&
+      {showRecommendation &&
         cheapestRank !== undefined &&
         nearestRank !== undefined &&
         rankingTotal && (

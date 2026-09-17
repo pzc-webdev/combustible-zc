@@ -536,8 +536,7 @@ input:focus-visible {
   text-transform: uppercase;
 }
 
-.rank-badge,
-.score-badge {
+.rank-badge {
   display: inline-flex;
   height: 1.3rem;
   min-width: 1.3rem;
@@ -548,12 +547,6 @@ input:focus-visible {
   color: #57626c;
   font-size: 0.62rem;
   font-weight: 800;
-}
-
-.score-badge {
-  padding: 0 0.45rem;
-  background: var(--winner-soft);
-  color: var(--winner-text);
 }
 
 .discount-empty-hint {

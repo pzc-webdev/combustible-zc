@@ -41,7 +41,7 @@ const LISTS: {
     key: "smartest",
     title: "Mejor opción",
     shortTitle: "Mejor",
-    description: "Smart Score",
+    description: "Equilibrio entre precio y distancia",
     icon: Sparkles,
   },
 ];
@@ -91,7 +91,7 @@ function ResultColumn({
             key={station.id}
             station={station}
             rank={index + 1}
-            showScore={listKey === "smartest"}
+            showRecommendation={listKey === "smartest"}
             cheapestRank={cheapestRanks?.get(station.id)}
             nearestRank={nearestRanks?.get(station.id)}
             rankingTotal={cheapestRanks?.size}
