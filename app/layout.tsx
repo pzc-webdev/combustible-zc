@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { IBM_Plex_Mono, Inter } from "next/font/google";
+import { ClarityAnalytics } from "@/components/clarity-analytics";
 import "./globals.css";
 
 const inter = Inter({
@@ -29,6 +31,8 @@ export default function RootLayout({
     <html lang="es">
       <body className={`${inter.variable} ${ibmPlexMono.variable}`}>
         {children}
+        <Analytics />
+        <ClarityAnalytics />
       </body>
     </html>
   );
