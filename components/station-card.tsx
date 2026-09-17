@@ -15,7 +15,7 @@ type StationCardProps = {
 
 function rankingBadgeClass(rank: number, total: number): string {
   if (rank === 1) {
-    return "bg-[var(--rank-good-bg)] text-[var(--rank-good)] ring-1 ring-inset ring-[var(--rank-good-border)]";
+    return "bg-[var(--rank-gold-bg)] text-[var(--rank-gold)] ring-1 ring-inset ring-[var(--rank-gold-border)]";
   }
 
   const percentile = rank / total;

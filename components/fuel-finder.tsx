@@ -250,7 +250,7 @@ export function FuelFinder() {
               : status === "loading"
                 ? "Consultando precios…"
                 : status === "success"
-                  ? "Actualizar mi búsqueda"
+                  ? "Actualizar mi ubicación"
                   : "Buscar cerca de mí"}
           </button>
           <p className="relative mt-3 text-[11px] text-white/60">
