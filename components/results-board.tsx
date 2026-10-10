@@ -137,7 +137,7 @@ export function ResultsBoard({
       <div className="mb-4 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
         <div>
           <p className="eyebrow">
-            Resultados en un radio de {radiusKm} km
+            Resultados en un radio de {radiusKm} km · Distancias en línea recta
           </p>
           <h2
             id="results-title"

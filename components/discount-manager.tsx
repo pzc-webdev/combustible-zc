@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, Plus, Tags, Trash2 } from "lucide-react";
 import type { Discount } from "@/lib/types";
+import { validDiscountValues } from "@/lib/discounts";
 
 type DiscountManagerProps = {
   discounts: Discount[];
@@ -19,12 +20,8 @@ export function DiscountManager({
   const [newCents, setNewCents] = useState("");
   const [lastAddedBrand, setLastAddedBrand] = useState("");
 
-  const numericCents = Number(newCents);
-  const canAddDiscount =
-    newBrand.trim().length > 0 &&
-    Number.isFinite(numericCents) &&
-    numericCents > 0 &&
-    numericCents <= 100;
+  const canAddDiscount = validDiscountValues(newBrand, newCents);
+  const activeCount = discounts.filter(d => validDiscountValues(d.brand, d.cents)).length;
 
   const addDiscount = () => {
     if (!canAddDiscount) return;
@@ -73,9 +70,9 @@ export function DiscountManager({
           </span>
         </span>
         <span className="flex items-center gap-3">
-          {discounts.some((discount) => discount.brand && discount.cents) && (
+          {activeCount > 0 && (
             <span className="hidden rounded-full bg-[var(--saving-bg)] px-2.5 py-1 text-xs font-semibold text-[var(--saving)] sm:inline">
-              {discounts.filter((discount) => discount.brand && discount.cents).length}{" "}
+              {activeCount}{" "}
               activos
             </span>
           )}
@@ -103,6 +100,8 @@ export function DiscountManager({
                 <input
                   type="text"
                   value={discount.brand}
+                  aria-invalid={!validDiscountValues(discount.brand, discount.cents)}
+                  aria-describedby={!validDiscountValues(discount.brand, discount.cents) ? `discount-error-${discount.id}` : undefined}
                   disabled={disabled}
                   maxLength={40}
                   placeholder="Ej. Repsol"
@@ -118,8 +117,10 @@ export function DiscountManager({
                 <input
                   type="number"
                   value={discount.cents}
+                  aria-invalid={!validDiscountValues(discount.brand, discount.cents)}
+                  aria-describedby={!validDiscountValues(discount.brand, discount.cents) ? `discount-error-${discount.id}` : undefined}
                   disabled={disabled}
-                  min="0"
+                  min="0.1"
                   max="100"
                   step="0.1"
                   inputMode="decimal"
@@ -139,6 +140,11 @@ export function DiscountManager({
               >
                 <Trash2 size={17} aria-hidden="true" />
               </button>
+              {!validDiscountValues(discount.brand, discount.cents) && (
+                <p id={`discount-error-${discount.id}`} className="col-span-3 text-xs text-red-700" role="status">
+                  Indica una marca y entre 0,1 y 100 cént./L, con un decimal como máximo. Este descuento no se aplica ni se guarda hasta corregirlo.
+                </p>
+              )}
             </div>
           ))}
         </div>

@@ -17,6 +17,22 @@ export type UserPosition = {
   longitude: number;
 };
 
+export type LocationPrecision = "address" | "street" | "area";
+export type LocationCandidate = {
+  id: string;
+  type: string;
+  label: string;
+  municipality: string;
+  province: string;
+  precision: LocationPrecision;
+  source: "photon";
+  position: UserPosition;
+};
+export type SearchLocation = UserPosition & {
+  label: string;
+  precision: LocationPrecision | "device";
+};
+
 export type RawStation = Record<string, string>;
 
 export type StationResult = {

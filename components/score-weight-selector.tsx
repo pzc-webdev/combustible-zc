@@ -43,7 +43,9 @@ export function ScoreWeightSelector({
               label="Información sobre la prioridad del cálculo"
             >
               Un porcentaje de precio más alto da más importancia al coste por
-              litro; el porcentaje restante pondera la distancia.
+              litro; el porcentaje restante pondera la distancia en línea recta.
+              La recomendación compara las estaciones encontradas según tus
+              prioridades; todavía no descuenta el combustible del trayecto.
             </InfoTooltip>
           </div>
         </div>

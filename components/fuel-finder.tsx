@@ -1,7 +1,6 @@
 "use client";
 
-import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertCircle,
   LoaderCircle,
@@ -14,11 +13,10 @@ import { FuelSelector } from "@/components/fuel-selector";
 import { RadiusSelector } from "@/components/radius-selector";
 import { ResultsBoard } from "@/components/results-board";
 import { ScoreWeightSelector } from "@/components/score-weight-selector";
+import { LocationSearch } from "@/components/location-search";
 import {
   DEFAULT_PRICE_WEIGHT,
   DEFAULT_RADIUS_KM,
-  MAX_RADIUS_KM,
-  MIN_RADIUS_KM,
   processStations,
 } from "@/lib/stations";
 import type {
@@ -26,11 +24,11 @@ import type {
   FuelSelection,
   RawStation,
   ResultLists,
+  SearchLocation,
   UserPosition,
 } from "@/lib/types";
 
-const DISCOUNTS_STORAGE_KEY = "combustible-zc-discounts";
-const RADIUS_STORAGE_KEY = "combustible-zc-radius";
+import { loadPreferences, savePreferences } from "@/lib/preferences";
 
 type SearchStatus = "idle" | "locating" | "loading" | "success" | "error";
 
@@ -42,7 +40,7 @@ const EMPTY_RESULTS: ResultLists = {
 
 function geolocationErrorMessage(error: GeolocationPositionError): string {
   if (error.code === error.PERMISSION_DENIED) {
-    return "No tenemos permiso para acceder a tu ubicación. Actívalo en los ajustes del navegador y vuelve a intentarlo.";
+    return "No tenemos permiso para acceder a tu ubicación. Puedes buscar por municipio, código postal o dirección en el formulario de arriba.";
   }
   if (error.code === error.POSITION_UNAVAILABLE) {
     return "Tu ubicación no está disponible ahora mismo. Comprueba que la localización del dispositivo esté activada.";
@@ -88,32 +86,32 @@ export function FuelFinder() {
   const [priceWeight, setPriceWeight] = useState(DEFAULT_PRICE_WEIGHT);
   const [rawStations, setRawStations] = useState<RawStation[]>([]);
   const [userPosition, setUserPosition] = useState<UserPosition | null>(null);
+  const [searchLocation, setSearchLocation] = useState<SearchLocation | null>(null);
+  const stationRequest = useRef<AbortController | null>(null);
+  const resultsSection = useRef<HTMLDivElement | null>(null);
   const [status, setStatus] = useState<SearchStatus>("idle");
   const [error, setError] = useState("");
   const [sourceUpdatedAt, setSourceUpdatedAt] = useState<string | null>(null);
   const [hasLoadedStorage, setHasLoadedStorage] = useState(false);
 
+  useEffect(() => () => stationRequest.current?.abort(), []);
+
+  useEffect(() => {
+    if (status !== "success") return;
+    resultsSection.current?.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+      block: "start",
+    });
+  }, [status]);
+
   useEffect(() => {
     const storageTimer = window.setTimeout(() => {
-      try {
-        const saved = localStorage.getItem(DISCOUNTS_STORAGE_KEY);
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed)) setDiscounts(parsed);
-        }
-        const savedRadius = Number(localStorage.getItem(RADIUS_STORAGE_KEY));
-        if (
-          Number.isFinite(savedRadius) &&
-          savedRadius >= MIN_RADIUS_KM &&
-          savedRadius <= MAX_RADIUS_KM
-        ) {
-          setRadiusKm(savedRadius);
-        }
-      } catch {
-        localStorage.removeItem(DISCOUNTS_STORAGE_KEY);
-      } finally {
-        setHasLoadedStorage(true);
-      }
+      const saved = loadPreferences(() => window.localStorage);
+      setDiscounts(saved.discounts);
+      setRadiusKm(saved.radiusKm);
+      setSelection(saved.selection);
+      setPriceWeight(saved.priceWeight);
+      setHasLoadedStorage(true);
     }, 0);
 
     return () => window.clearTimeout(storageTimer);
@@ -121,13 +119,10 @@ export function FuelFinder() {
 
   useEffect(() => {
     if (!hasLoadedStorage) return;
-    localStorage.setItem(DISCOUNTS_STORAGE_KEY, JSON.stringify(discounts));
-  }, [discounts, hasLoadedStorage]);
-
-  useEffect(() => {
-    if (!hasLoadedStorage) return;
-    localStorage.setItem(RADIUS_STORAGE_KEY, String(radiusKm));
-  }, [hasLoadedStorage, radiusKm]);
+    savePreferences(() => window.localStorage, {
+      version: 1, discounts, radiusKm, selection, priceWeight,
+    });
+  }, [discounts, hasLoadedStorage, radiusKm, selection, priceWeight]);
 
   const results = useMemo(() => {
     if (!userPosition || rawStations.length === 0) return EMPTY_RESULTS;
@@ -141,30 +136,39 @@ export function FuelFinder() {
     );
   }, [discounts, priceWeight, radiusKm, rawStations, selection, userPosition]);
 
-  const search = async () => {
+  const search = async (manualLocation?: SearchLocation) => {
+    stationRequest.current?.abort();
+    const controller = new AbortController();
+    stationRequest.current = controller;
     setError("");
-    setStatus("locating");
+    setStatus(manualLocation ? "loading" : "locating");
 
     try {
-      const position = await locateUser();
-      setUserPosition(position);
+      const position = manualLocation ?? await locateUser();
+      if (controller.signal.aborted) return;
       setStatus("loading");
 
       const searchParams = new URLSearchParams({
         lat: position.latitude.toFixed(5),
         lng: position.longitude.toFixed(5),
       });
-      const response = await fetch("/api/stations?" + searchParams.toString());
+      const response = await fetch("/api/stations?" + searchParams.toString(), {
+        signal: controller.signal,
+      });
       const payload = await response.json();
 
       if (!response.ok) {
         throw new Error(payload?.error || "No se pudieron cargar los precios.");
       }
 
+      if (controller.signal.aborted) return;
+      setUserPosition(position);
+      setSearchLocation(manualLocation ?? { ...position, label: "Tu ubicación actual", precision: "device" });
       setRawStations(payload.stations);
       setSourceUpdatedAt(payload.sourceUpdatedAt);
       setStatus("success");
     } catch (searchError) {
+      if (controller.signal.aborted) return;
       setError(
         searchError instanceof Error
           ? searchError.message
@@ -234,13 +238,13 @@ export function FuelFinder() {
           </p>
           <button
             type="button"
-            onClick={search}
+            onClick={() => void search()}
             disabled={isSearching}
             className="search-button"
           >
             {isSearching ? (
               <LoaderCircle className="animate-spin" size={21} aria-hidden="true" />
-            ) : status === "success" ? (
+            ) : status === "success" && searchLocation?.precision === "device" ? (
               <RotateCw size={20} aria-hidden="true" />
             ) : (
               <LocateFixed size={21} aria-hidden="true" />
@@ -249,14 +253,14 @@ export function FuelFinder() {
               ? "Obteniendo ubicación…"
               : status === "loading"
                 ? "Consultando precios…"
-                : status === "success"
+                : status === "success" && searchLocation?.precision === "device"
                   ? "Actualizar mi ubicación"
                   : "Buscar cerca de mí"}
           </button>
           <p className="relative mt-3 text-[11px] text-white/60">
-            Tu ubicación solo se utiliza para calcular distancias y limitar los
-            resultados a tu zona.
+            Distancias en línea recta. Tu ubicación de búsqueda no se guarda en tus preferencias.
           </p>
+          <LocationSearch onSelect={location => void search(location)} disabled={isSearching} />
           </section>
         </section>
 
@@ -273,16 +277,26 @@ export function FuelFinder() {
           </div>
         )}
 
-        {noResults && (
-          <div className="mx-auto mt-8 max-w-xl rounded-xl border border-[var(--line)] bg-[var(--surface-soft)] px-6 py-10 text-center shadow-[0_14px_30px_rgba(23,33,43,0.06)]">
-            <MapPinned className="mx-auto text-[#2B7A9A]" size={34} aria-hidden="true" />
-            <h2 className="mt-4 font-bold text-[#17212B]">
-              No hay estaciones disponibles
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-[#44505A]">
-              No encontramos estaciones con precio para este combustible a
-              menos de {radiusKm} km. Prueba otra variante o amplía el radio.
-            </p>
+        {status === "success" && (
+          <div ref={resultsSection} className="scroll-mt-6">
+            {searchLocation && (
+              <p className="mx-auto mt-6 max-w-6xl text-sm text-[#44505A]" data-clarity-mask="true">
+                Buscando cerca de <strong>{searchLocation.label}</strong>.
+                {searchLocation.precision === "area" && " Ubicación aproximada de la zona; indica una calle y número para concretar."}
+                {searchLocation.precision === "street" && " Ubicación aproximada de la calle; indica un número para concretar."}
+              </p>
+            )}
+
+            {noResults && (
+              <div className="mx-auto mt-8 max-w-xl rounded-xl border border-[var(--line)] bg-[var(--surface-soft)] px-6 py-10 text-center shadow-[0_14px_30px_rgba(23,33,43,0.06)]">
+                <MapPinned className="mx-auto text-[#2B7A9A]" size={34} aria-hidden="true" />
+                <h2 className="mt-4 font-bold text-[#17212B]">
+                  No hay estaciones disponibles
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-[#44505A]">
+                  No encontramos estaciones con precio para este combustible a
+                  menos de {radiusKm} km. Prueba otra variante o amplía el radio.
+                </p>
           </div>
         )}
 
@@ -293,6 +307,8 @@ export function FuelFinder() {
             radiusKm={radiusKm}
             priceWeight={priceWeight}
           />
+        )}
+          </div>
         )}
       </div>
       </main>

@@ -40,7 +40,7 @@ export function RadiusSelector({
                 id="radius-tooltip"
                 label="Información sobre el radio de búsqueda"
               >
-                Define la distancia máxima desde tu ubicación. Solo se
+                Define la distancia máxima en línea recta desde tu ubicación. Solo se
                 mostrarán estaciones dentro de ese radio.
               </InfoTooltip>
             </div>

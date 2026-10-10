@@ -7,6 +7,7 @@ import {
   parseSpanishNumber,
 } from "@/lib/stations";
 import type { RawStation, UserPosition } from "@/lib/types";
+import { isValidPosition, positionFromParams } from "@/lib/geo";
 
 const MINISTRY_API =
   "https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/";
@@ -37,7 +38,6 @@ type CachedMinistryPayload = {
 };
 
 export const runtime = "nodejs";
-export const preferredRegion = "cdg1";
 export const maxDuration = 60;
 
 const getCompressedMinistryPayload = unstable_cache(
@@ -87,22 +87,6 @@ async function getMinistryData(): Promise<{
   };
 }
 
-function getPosition(request: NextRequest): UserPosition | null {
-  const latitude = Number(request.nextUrl.searchParams.get("lat"));
-  const longitude = Number(request.nextUrl.searchParams.get("lng"));
-
-  if (
-    !Number.isFinite(latitude) ||
-    !Number.isFinite(longitude) ||
-    Math.abs(latitude) > 90 ||
-    Math.abs(longitude) > 180
-  ) {
-    return null;
-  }
-
-  return { latitude, longitude };
-}
-
 function compactNearbyStations(
   stations: RawStation[],
   userPosition: UserPosition,
@@ -111,7 +95,7 @@ function compactNearbyStations(
     const latitude = parseSpanishNumber(station.Latitud);
     const longitude = parseSpanishNumber(station["Longitud (WGS84)"]);
 
-    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+    if (!isValidPosition({ latitude, longitude })) {
       return [];
     }
 
@@ -137,7 +121,7 @@ function compactNearbyStations(
 }
 
 export async function GET(request: NextRequest) {
-  const userPosition = getPosition(request);
+  const userPosition = positionFromParams(request.nextUrl.searchParams);
 
   if (!userPosition) {
     return NextResponse.json(

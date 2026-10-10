@@ -9,6 +9,8 @@
 
 # production
 /build
+/test-results/
+/playwright-report/
 
 # local files
 .DS_Store
