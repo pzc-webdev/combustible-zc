@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, MapPin, Sparkles, TrendingDown } from "lucide-react";
 import { StationCard } from "@/components/station-card";
-import type { ResultLists, StationResult } from "@/lib/types";
+import type { JourneyNavigation, ResultLists, StationResult } from "@/lib/types";
 
 type ListKey = keyof ResultLists;
 
@@ -12,6 +12,7 @@ type ResultsBoardProps = {
   sourceUpdatedAt: string | null;
   radiusKm: number;
   priceWeight: number;
+  journey?: JourneyNavigation;
 };
 
 const STATIONS_PER_PAGE = 20;
@@ -54,6 +55,7 @@ function ResultColumn({
   stations,
   cheapestRanks,
   nearestRanks,
+  journey,
 }: {
   listKey: ListKey;
   title: string;
@@ -62,6 +64,7 @@ function ResultColumn({
   stations: StationResult[];
   cheapestRanks?: Map<string, number>;
   nearestRanks?: Map<string, number>;
+  journey?: JourneyNavigation;
 }) {
   const [visibleCount, setVisibleCount] = useState(STATIONS_PER_PAGE);
   const visibleStations = stations.slice(0, visibleCount);
@@ -95,6 +98,7 @@ function ResultColumn({
             cheapestRank={cheapestRanks?.get(station.id)}
             nearestRank={nearestRanks?.get(station.id)}
             rankingTotal={cheapestRanks?.size}
+            journey={journey}
           />
         ))}
         {remainingStations > 0 && (
@@ -122,9 +126,12 @@ export function ResultsBoard({
   sourceUpdatedAt,
   radiusKm,
   priceWeight,
+  journey,
 }: ResultsBoardProps) {
   const [activeList, setActiveList] = useState<ListKey>("smartest");
   const stationCount = lists.cheapest.length;
+  const displayedLists = LISTS.map(list => journey && list.key === "nearest"
+    ? { ...list, title: "Menos desvío", shortTitle: "Desvío", description: "Menos kilómetros extra" } : list);
   const cheapestRanks = new Map(
     lists.cheapest.map((station, index) => [station.id, index + 1]),
   );
@@ -137,13 +144,13 @@ export function ResultsBoard({
       <div className="mb-4 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
         <div>
           <p className="eyebrow">
-            Resultados en un radio de {radiusKm} km · Distancias en línea recta
+            {journey ? "Gasolineras en tu viaje · Desvíos por carretera" : `Resultados en un radio de ${radiusKm} km · Distancias en línea recta`}
           </p>
           <h2
             id="results-title"
             className="mt-1 text-2xl font-bold tracking-[-0.04em] text-[#17212B] sm:text-3xl"
           >
-            {stationCount} {stationCount === 1 ? "estación encontrada" : "estaciones encontradas"}
+            {stationCount} {stationCount === 1 ? "estación encontrada" : "estaciones encontradas"}{journey && " en ruta"}
           </h2>
         </div>
         {sourceUpdatedAt && (
@@ -158,7 +165,7 @@ export function ResultsBoard({
         role="tablist"
         aria-label="Orden de resultados"
       >
-        {LISTS.map((list) => {
+        {displayedLists.map((list) => {
           const Icon = list.icon;
           const selected = activeList === list.key;
           return (
@@ -182,39 +189,41 @@ export function ResultsBoard({
       </div>
 
       <div className="lg:hidden">
-        {LISTS.filter((list) => list.key === activeList).map((list) => (
+        {displayedLists.filter((list) => list.key === activeList).map((list) => (
           <ResultColumn
             key={list.key + "-" + (lists[list.key][0]?.id ?? "empty") + "-" + lists[list.key].length}
             listKey={list.key}
             title={list.title}
             description={
               list.key === "smartest"
-                ? priceWeight + "% precio · " + (100 - priceWeight) + "% distancia"
+                ? priceWeight + "% precio · " + (100 - priceWeight) + (journey ? "% desvío" : "% distancia")
                 : list.description
             }
             icon={list.icon}
             stations={lists[list.key]}
             cheapestRanks={list.key === "smartest" ? cheapestRanks : undefined}
             nearestRanks={list.key === "smartest" ? nearestRanks : undefined}
+            journey={journey}
           />
         ))}
       </div>
 
       <div className="hidden grid-cols-3 gap-4 lg:grid xl:gap-5">
-        {LISTS.map((list) => (
+        {displayedLists.map((list) => (
           <ResultColumn
             key={list.key + "-" + (lists[list.key][0]?.id ?? "empty") + "-" + lists[list.key].length}
             listKey={list.key}
             title={list.title}
             description={
               list.key === "smartest"
-                ? priceWeight + "% precio · " + (100 - priceWeight) + "% distancia"
+                ? priceWeight + "% precio · " + (100 - priceWeight) + (journey ? "% desvío" : "% distancia")
                 : list.description
             }
             icon={list.icon}
             stations={lists[list.key]}
             cheapestRanks={list.key === "smartest" ? cheapestRanks : undefined}
             nearestRanks={list.key === "smartest" ? nearestRanks : undefined}
+            journey={journey}
           />
         ))}
       </div>

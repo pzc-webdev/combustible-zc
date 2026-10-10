@@ -8,6 +8,7 @@ type ScoreWeightSelectorProps = {
   priceWeight: number;
   onChange: (priceWeight: number) => void;
   disabled?: boolean;
+  inJourney?: boolean;
 };
 
 const PRESETS = [
@@ -20,8 +21,10 @@ export function ScoreWeightSelector({
   priceWeight,
   onChange,
   disabled,
+  inJourney = false,
 }: ScoreWeightSelectorProps) {
   const distanceWeight = 100 - priceWeight;
+  const distanceLabel = inJourney ? "Desvío" : "Distancia";
 
   return (
     <section
@@ -42,10 +45,7 @@ export function ScoreWeightSelector({
               id="score-weight-tooltip"
               label="Información sobre la prioridad del cálculo"
             >
-              Un porcentaje de precio más alto da más importancia al coste por
-              litro; el porcentaje restante pondera la distancia en línea recta.
-              La recomendación compara las estaciones encontradas según tus
-              prioridades; todavía no descuenta el combustible del trayecto.
+              {`Un porcentaje de precio más alto da más importancia al coste por litro; el porcentaje restante pondera ${inJourney ? "los kilómetros extra del desvío por carretera" : "la distancia en línea recta"}. La recomendación compara las estaciones encontradas según tus prioridades; no descuenta el combustible del trayecto.`}
             </InfoTooltip>
           </div>
         </div>
@@ -62,7 +62,7 @@ export function ScoreWeightSelector({
         </div>
         <div className="priority-distance rounded-lg px-3 py-2 text-right">
           <p className="text-[10px] font-bold uppercase tracking-[0.12em]">
-            Distancia
+            {distanceLabel}
           </p>
           <p className="mt-0.5 font-[var(--font-ibm-plex-mono)] text-2xl font-bold tabular-nums tracking-[-0.05em]">
             {distanceWeight}%
@@ -84,7 +84,7 @@ export function ScoreWeightSelector({
         aria-label={
           "Peso del precio: " +
           priceWeight +
-          " %. Peso de la distancia: " +
+          (inJourney ? " %. Peso del desvío: " : " %. Peso de la distancia: ") +
           distanceWeight +
           " %."
         }
@@ -100,7 +100,7 @@ export function ScoreWeightSelector({
             onClick={() => onChange(preset.value)}
             className="radius-preset priority-preset px-1 text-[10px]"
           >
-            {preset.label}
+            {preset.label === "Distancia" ? distanceLabel : preset.label}
           </button>
         ))}
       </div>

@@ -51,3 +51,19 @@ test("rechaza valores de preferencias inválidos y descuentos malformados", () =
   assert.equal(validDiscountValues("Marca", "0,1"), true);
   assert.equal(validDiscountValues("Marca", "100"), true);
 });
+
+test("conserva el límite de desvío y retira las preferencias del panel económico", () => {
+  const storage = memoryStorage({ [PREFERENCES_KEY]: JSON.stringify({ version: 2, radiusKm: 25, priceWeight: 50,
+    selection: { family: "diesel", grade: "premium" }, discounts: [discount], refueling: { liters: 40, consumption: 6 } }) });
+  const restored = loadPreferences(() => storage);
+  assert.equal(restored.version, 1);
+  assert.equal(restored.radiusKm, 25);
+  assert.equal(restored.priceWeight, 50);
+  assert.equal(restored.selection.family, "diesel");
+  assert.equal("refueling" in restored, false);
+  savePreferences(() => storage, { ...restored, maximumDetourKm: 10 });
+  assert.equal(loadPreferences(() => storage).maximumDetourKm, 10);
+  for (const maximumDetourKm of [-1, 21, 2.5, Infinity, null]) {
+    assert.equal(normalizePreferences({ maximumDetourKm }).maximumDetourKm, 5);
+  }
+});

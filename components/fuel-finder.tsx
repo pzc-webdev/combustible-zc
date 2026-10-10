@@ -14,6 +14,11 @@ import { RadiusSelector } from "@/components/radius-selector";
 import { ResultsBoard } from "@/components/results-board";
 import { ScoreWeightSelector } from "@/components/score-weight-selector";
 import { LocationSearch } from "@/components/location-search";
+import { JourneySearch } from "@/components/journey-search";
+import { DetourSelector } from "@/components/detour-selector";
+import { DEFAULT_DETOUR_KM, type JourneyResult } from "@/lib/journey";
+import { rankStations } from "@/lib/ranking";
+import { formatDistance } from "@/lib/format";
 import {
   DEFAULT_PRICE_WEIGHT,
   DEFAULT_RADIUS_KM,
@@ -84,6 +89,11 @@ export function FuelFinder() {
   const [discounts, setDiscounts] = useState<Discount[]>([]);
   const [radiusKm, setRadiusKm] = useState(DEFAULT_RADIUS_KM);
   const [priceWeight, setPriceWeight] = useState(DEFAULT_PRICE_WEIGHT);
+  const [mode, setMode] = useState<"nearby" | "journey">("nearby");
+  const [maximumDetourKm, setMaximumDetourKm] = useState(DEFAULT_DETOUR_KM);
+  const [journeyResult, setJourneyResult] = useState<(JourneyResult & {
+    origin: SearchLocation; destination: SearchLocation; maximumDetourKm: number;
+  }) | null>(null);
   const [rawStations, setRawStations] = useState<RawStation[]>([]);
   const [userPosition, setUserPosition] = useState<UserPosition | null>(null);
   const [searchLocation, setSearchLocation] = useState<SearchLocation | null>(null);
@@ -111,6 +121,7 @@ export function FuelFinder() {
       setRadiusKm(saved.radiusKm);
       setSelection(saved.selection);
       setPriceWeight(saved.priceWeight);
+      setMaximumDetourKm(saved.maximumDetourKm);
       setHasLoadedStorage(true);
     }, 0);
 
@@ -120,11 +131,12 @@ export function FuelFinder() {
   useEffect(() => {
     if (!hasLoadedStorage) return;
     savePreferences(() => window.localStorage, {
-      version: 1, discounts, radiusKm, selection, priceWeight,
+      version: 1, discounts, radiusKm, selection, priceWeight, maximumDetourKm,
     });
-  }, [discounts, hasLoadedStorage, radiusKm, selection, priceWeight]);
+  }, [discounts, hasLoadedStorage, radiusKm, selection, priceWeight, maximumDetourKm]);
 
   const results = useMemo(() => {
+    if (mode === "journey") return journeyResult ? rankStations(journeyResult.stations, priceWeight) : EMPTY_RESULTS;
     if (!userPosition || rawStations.length === 0) return EMPTY_RESULTS;
     return processStations(
       rawStations,
@@ -134,7 +146,40 @@ export function FuelFinder() {
       radiusKm,
       priceWeight,
     );
-  }, [discounts, priceWeight, radiusKm, rawStations, selection, userPosition]);
+  }, [discounts, priceWeight, radiusKm, rawStations, selection, userPosition, mode, journeyResult]);
+
+  const clearJourney = () => {
+    stationRequest.current?.abort();
+    stationRequest.current = null;
+    setStatus("idle");
+    setError("");
+    setJourneyResult(null);
+  };
+
+  const searchJourney = async (origin: SearchLocation, destination: SearchLocation) => {
+    stationRequest.current?.abort();
+    const controller = new AbortController();
+    stationRequest.current = controller;
+    setStatus("loading");
+    setError("");
+    setJourneyResult(null);
+    try {
+      const response = await fetch("/api/journey", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ origin: { latitude: origin.latitude, longitude: origin.longitude },
+          destination: { latitude: destination.latitude, longitude: destination.longitude },
+          maximumDetourKm, selection, discounts }), signal: controller.signal });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "No se pudo buscar en el trayecto.");
+      if (controller.signal.aborted) return;
+      setJourneyResult({ ...payload, origin, destination, maximumDetourKm });
+      setSourceUpdatedAt(payload.sourceUpdatedAt);
+      setStatus("success");
+    } catch (searchError) {
+      if (controller.signal.aborted) return;
+      setError(searchError instanceof Error ? searchError.message : "No se pudo buscar en el trayecto.");
+      setStatus("error");
+    }
+  };
 
   const search = async (manualLocation?: SearchLocation) => {
     stationRequest.current?.abort();
@@ -198,6 +243,15 @@ export function FuelFinder() {
           </p>
         </section>
 
+        <div className="mx-auto mb-5 grid max-w-md grid-cols-2 gap-2 rounded-xl border border-[var(--line)] bg-[var(--surface-muted)] p-1.5"
+          role="group" aria-label="Tipo de búsqueda">
+          {([{ key: "nearby", label: "Cerca de mí" }, { key: "journey", label: "En ruta" }] as const).map(option => (
+            <button key={option.key} type="button" aria-pressed={mode === option.key}
+              className={`rounded-lg px-4 py-3 text-sm font-bold ${mode === option.key ? "bg-[#143642] text-white" : "text-[#44505A]"}`}
+              onClick={() => { if (mode !== option.key) { clearJourney(); setMode(option.key); } }}>{option.label}</button>
+          ))}
+        </div>
+
         <section
           className="configurator mx-auto mt-4 grid max-w-6xl lg:mt-5 lg:grid-cols-12"
           aria-label="Preferencias de búsqueda"
@@ -205,19 +259,21 @@ export function FuelFinder() {
           <div className="config-step config-step-fuel lg:col-span-5">
             <FuelSelector
               value={selection}
-              onChange={setSelection}
+              onChange={value => { setSelection(value); if (mode === "journey") clearJourney(); }}
               disabled={isSearching}
             />
           </div>
           <div className="config-step config-step-radius lg:col-span-7">
-            <RadiusSelector
+            {mode === "journey" ? <DetourSelector value={maximumDetourKm}
+              onChange={value => { setMaximumDetourKm(value); clearJourney(); }} disabled={isSearching} /> : <RadiusSelector
               value={radiusKm}
               onChange={setRadiusKm}
               disabled={isSearching}
-            />
+            />}
           </div>
           <div className="config-step config-step-score lg:col-span-12">
             <ScoreWeightSelector
+              inJourney={mode === "journey"}
               priceWeight={priceWeight}
               onChange={setPriceWeight}
               disabled={isSearching}
@@ -226,13 +282,14 @@ export function FuelFinder() {
           <div className="config-step config-step-discounts lg:col-span-12">
             <DiscountManager
               discounts={discounts}
-              onChange={setDiscounts}
+              onChange={value => { setDiscounts(value); if (mode === "journey") clearJourney(); }}
               disabled={isSearching}
             />
           </div>
           <section className="config-action relative overflow-hidden bg-[#143642] px-5 py-6 text-center sm:px-7 lg:col-span-12">
           <div className="pointer-events-none absolute -right-10 -top-16 size-48 rounded-full border border-white/10" />
           <div className="pointer-events-none absolute -right-2 -top-8 size-32 rounded-full border border-white/10" />
+          {mode === "nearby" ? <>
           <p className="relative mb-3 font-[var(--font-ibm-plex-mono)] text-[11px] font-medium tracking-[0.08em] text-white/65">
             {selection.family === "gasoline" ? "GASOLINA" : "GASOIL"} · {selection.grade === "normal" ? "NORMAL" : "PREMIUM"} · {radiusKm} KM · PRECIO {priceWeight}%
           </p>
@@ -261,6 +318,7 @@ export function FuelFinder() {
             Distancias en línea recta. Tu ubicación de búsqueda no se guarda en tus preferencias.
           </p>
           <LocationSearch onSelect={location => void search(location)} disabled={isSearching} />
+          </> : <JourneySearch disabled={isSearching} onSearch={(origin, destination) => void searchJourney(origin, destination)} onEdit={clearJourney} />}
           </section>
         </section>
 
@@ -279,7 +337,18 @@ export function FuelFinder() {
 
         {status === "success" && (
           <div ref={resultsSection} className="scroll-mt-6">
-            {searchLocation && (
+            {mode === "journey" && journeyResult && (
+              <div className="mx-auto mt-6 max-w-6xl space-y-2 text-sm leading-6 text-[#44505A]">
+                <p data-clarity-mask="true"><strong>{journeyResult.origin.label} → {journeyResult.destination.label}</strong></p>
+                <p>Trayecto sin parada: {formatDistance(journeyResult.baseRoute.distanceKm)} · {Math.ceil(journeyResult.baseRoute.durationMinutes)} min.
+                  {" "}Desvío máximo: +{journeyResult.maximumDetourKm} km.</p>
+                {(journeyResult.origin.precision !== "address" || journeyResult.destination.precision !== "address") &&
+                  <p className="text-xs">Los lugares elegidos son aproximados. Busca una dirección con número para concretar el trayecto.</p>}
+                <p className="text-xs">Evaluadas {journeyResult.evaluatedCount} de {journeyResult.candidateCount} estaciones próximas al trayecto.
+                  {" "}La selección combina precio y distintas partes del viaje; puede haber otras opciones.</p>
+              </div>
+            )}
+            {mode === "nearby" && searchLocation && (
               <p className="mx-auto mt-6 max-w-6xl text-sm text-[#44505A]" data-clarity-mask="true">
                 Buscando cerca de <strong>{searchLocation.label}</strong>.
                 {searchLocation.precision === "area" && " Ubicación aproximada de la zona; indica una calle y número para concretar."}
@@ -294,8 +363,8 @@ export function FuelFinder() {
                   No hay estaciones disponibles
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-[#44505A]">
-                  No encontramos estaciones con precio para este combustible a
-                  menos de {radiusKm} km. Prueba otra variante o amplía el radio.
+                  {mode === "journey" ? "Ninguna de las estaciones evaluadas cumple el desvío máximo. Amplía el límite o cambia el trayecto."
+                    : `No encontramos estaciones con precio para este combustible a menos de ${radiusKm} km. Prueba otra variante o amplía el radio.`}
                 </p>
           </div>
         )}
@@ -306,8 +375,15 @@ export function FuelFinder() {
             sourceUpdatedAt={sourceUpdatedAt}
             radiusKm={radiusKm}
             priceWeight={priceWeight}
+            journey={mode === "journey" && journeyResult ? { origin: journeyResult.origin, destination: journeyResult.destination } : undefined}
           />
         )}
+            {mode === "journey" && journeyResult && <p className="mx-auto mt-5 max-w-6xl text-xs leading-5 text-[#44505A]">
+              Desvíos estimados para conducir, sin contar el tiempo de repostaje. Comprueba los accesos de la estación.
+              {" "}Rutas: <a className="underline" href="https://project-osrm.org/" target="_blank" rel="noreferrer">OSRM</a>
+              {" · "}<a className="underline" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a>
+              {" · "}<a className="underline" href="https://www.openstreetmap.org/fixthemap" target="_blank" rel="noreferrer">Corregir el mapa</a>
+            </p>}
           </div>
         )}
       </div>

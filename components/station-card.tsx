@@ -2,7 +2,7 @@
 
 import { BadgeCheck, Crown, MapPin, Navigation } from "lucide-react";
 import { formatDistance, priceFormatter } from "@/lib/format";
-import type { StationResult } from "@/lib/types";
+import type { JourneyNavigation, StationResult } from "@/lib/types";
 
 type StationCardProps = {
   station: StationResult;
@@ -11,6 +11,7 @@ type StationCardProps = {
   cheapestRank?: number;
   nearestRank?: number;
   rankingTotal?: number;
+  journey?: JourneyNavigation;
 };
 
 function rankingBadgeClass(rank: number, total: number): string {
@@ -35,8 +36,16 @@ export function StationCard({
   cheapestRank,
   nearestRank,
   rankingTotal,
+  journey,
 }: StationCardProps) {
-  const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${station.latitude},${station.longitude}`;
+  const mapsParams = new URLSearchParams({ api: "1", destination: `${station.latitude},${station.longitude}` });
+  if (journey) {
+    mapsParams.set("origin", `${journey.origin.latitude},${journey.origin.longitude}`);
+    mapsParams.set("destination", `${journey.destination.latitude},${journey.destination.longitude}`);
+    mapsParams.set("waypoints", `${station.latitude},${station.longitude}`);
+    mapsParams.set("travelmode", "driving");
+  }
+  const mapsUrl = `https://www.google.com/maps/dir/?${mapsParams}`;
   const hasDiscount = station.discountCents > 0;
 
   return (
@@ -110,8 +119,8 @@ export function StationCard({
               <Crown className="ranking-crown" size={19} strokeWidth={1.8} aria-hidden="true" />
             )}
             {nearestRank === 1
-              ? "La más cercana"
-              : "Nº" + nearestRank + " en cercanía"}
+              ? station.detour ? "Menor desvío" : "La más cercana"
+              : "Nº" + nearestRank + (station.detour ? " en desvío" : " en cercanía")}
           </span>
         </div>
       )}
@@ -127,7 +136,7 @@ export function StationCard({
         <div className="mt-3 flex items-center justify-between">
           <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#44505A]">
             <MapPin size={14} className="text-[#2B7A9A]" aria-hidden="true" />
-            {formatDistance(station.distanceKm)}
+            {station.detour ? `+${formatDistance(station.detour.distanceKm)} · +${Math.ceil(station.detour.durationMinutes)} min` : formatDistance(station.distanceKm)}
           </span>
           <a
             href={mapsUrl}
@@ -136,7 +145,7 @@ export function StationCard({
             className="inline-flex items-center gap-1 text-xs font-semibold text-[#44505A] transition-all duration-300 hover:text-[#143642]"
             aria-label={`Cómo llegar a ${station.brand}`}
           >
-            Cómo llegar
+            {journey ? "Ir con esta parada" : "Cómo llegar"}
             <Navigation size={13} aria-hidden="true" />
           </a>
         </div>

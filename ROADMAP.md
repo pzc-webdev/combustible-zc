@@ -1,6 +1,28 @@
 # Hoja de ruta de demenos
 
-Documento de planificación basado en el código revisado el 17 de septiembre de 2026. Las tareas pendientes no representan funcionalidades ya disponibles. El orden propuesto prioriza resolver la pregunta original: **¿cuánto ahorro después de pagar el combustible del desvío?**
+Documento de planificación iniciado el 17 de septiembre de 2026 y actualizado el 10 de octubre. Las tareas pendientes no representan funcionalidades ya disponibles. La pregunta original sigue siendo: **¿cuánto ahorro después de pagar el combustible del desvío?** La comparación económica queda pendiente de un flujo más claro.
+
+## Avance del 10 de octubre — búsqueda en ruta
+
+Se ha retirado la última implementación de ahorro neto por resultar confusa en
+la interfaz. Se conservan las búsquedas y preferencias anteriores, sin el panel
+de litros, consumo ni referencia económica. Las preferencias guardadas con ese
+panel se recuperan sin perder combustible, descuentos, radio o ponderación.
+
+La fase 3 ya permite elegir origen y destino, limitar el desvío entre 0 y 20 km,
+comparar precio y kilómetros adicionales y abrir Google Maps con la estación
+como parada. Las tarjetas muestran también los minutos extra. La búsqueda
+recorre todo el trayecto y evalúa por carretera hasta doce candidatas, con el
+alcance de la selección visible. Detalles en [rutas](docs/journey.md).
+
+Validación: 32 pruebas de lógica/API y 24 pruebas de navegador entre móvil y
+escritorio; lint y build correctos. Una consulta real Sevilla–Córdoba encontró
+paradas a más de 50 km del origen que cumplían el límite de 5 km adicionales.
+Se han revisado las capturas de ambos tamaños. Pendiente de despliegue y
+validación con usuarios reales.
+
+El cálculo económico de las fases 2 y 3 continúa pendiente. El siguiente bloque
+funcional es la fase 4, comenzando por el modelo de descuentos y sus condiciones.
 
 ## Avance del 20 de septiembre de 2026
 
@@ -28,9 +50,9 @@ reales y la API de precios devolvió 957 estaciones dentro del filtro de servido
 de 50,2 km para el punto de prueba de Madrid; después la interfaz aplica el radio
 elegido. Falta la validación del despliegue de producción.
 
-Entrega pendiente de despliegue y validación con usuarios reales. El siguiente
-hito de implementación es la fase 2: coste de ida y vuelta y ahorro neto. La
-distancia que muestra esta entrega sigue siendo en línea recta.
+En aquella entrega, el siguiente hito previsto era la fase 2. El apartado del
+10 de octubre recoge el cambio de prioridad. La distancia de «Cerca de mí»
+continúa siendo en línea recta; «En ruta» utiliza kilómetros por carretera.
 
 ## Punto de partida (17 de septiembre, antes de esta entrega)
 
@@ -49,7 +71,7 @@ distancia que muestra esta entrega sigue siendo en línea recta.
 | 0. Consolidación | Resultados y preferencias fiables | Versión actual | Pequeño |
 | 1. Ubicación manual | Buscar sin conceder geolocalización | Fase 0 | Medio |
 | 2. Ahorro neto cerca de mí | Saber si compensa ir a otra estación | Fases 0 y 1 | Grande |
-| 3. Repostaje en ruta | Elegir una parada según el desvío y el ahorro | Fase 2 | Grande |
+| 3. Repostaje en ruta | Elegir una parada según precio y desvío; ahorro pendiente | Fases 0 y 1; fase 2 para ahorro | Grande |
 | 4. Descuentos avanzados | Comparar el coste de un repostaje con sus condiciones | Modelo de coste de fase 2 | Medio/grande |
 | 5. Cuenta opcional | Recuperar preferencias entre dispositivos | Persistencia y reglas estabilizadas | Medio |
 
@@ -86,6 +108,10 @@ Terminada cuando: se puede completar una búsqueda por las tres formas de entrad
 
 Objetivo: responder la pregunta original en euros para una salida dedicada a repostar y volver al punto de partida.
 
+Estado: implementación retirada; pendiente de rediseñar el flujo antes de
+reintroducir controles económicos. La infraestructura de rutas de fase 3 puede
+reutilizarse, pero todavía no calcula el coste de ir y volver.
+
 - [ ] Pedir litros previstos y consumo medio en L/100 km. Empezar por litros; un presupuesto fijo necesita una comparación diferente.
 - [ ] Evaluar un proveedor de rutas y matrices por cobertura, accesos a estaciones, límites, latencia y coste. Mantenerlo detrás de una interfaz propia.
 - [ ] Calcular ida y vuelta por carretera para las estaciones comparadas, incluyendo posibles diferencias de sentido y acceso.
@@ -119,14 +145,15 @@ Terminada cuando: el ejemplo anterior y un caso de ahorro negativo se reproducen
 
 Objetivo: comparar paradas entre un origen y un destino según el desvío real.
 
-- [ ] Añadir modo «En ruta» con origen, destino y límites de desvío adicional en kilómetros y/o minutos.
-- [ ] Obtener una ruta base y buscar candidatas a lo largo de su recorrido. La API actual recorta estaciones a unos 50 km del origen y debe ampliarse para este modo.
-- [ ] Usar un corredor geográfico solo para preseleccionar; validar el desvío por carretera, accesos y sentidos de circulación.
-- [ ] Comparar la ruta origen → estación → destino con la ruta base, usando opciones de ruta coherentes.
+- [x] Añadir modo «En ruta» con origen, destino y límite de desvío adicional en kilómetros.
+- [x] Obtener una ruta base y buscar candidatas a lo largo de todo su recorrido, sin el recorte radial de 50 km del origen.
+- [x] Usar un corredor geográfico solo para preseleccionar; validar el desvío con rutas por carretera que consideran sentidos y accesos cartografiados.
+- [x] Comparar la ruta origen → estación → destino con la ruta base, usando opciones de ruta coherentes.
 - [ ] Reutilizar el cálculo de coste con los kilómetros adicionales y comparar el ahorro entre alternativas de repostaje factibles.
-- [ ] Mostrar kilómetros y minutos adicionales, precio final, coste del desvío y ahorro estimado respecto a una parada de referencia identificada.
-- [ ] Ofrecer navegación que incluya la estación como parada.
-- [ ] Limitar y medir las consultas de rutas; gestionar estaciones inaccesibles, ausencia de paradas válidas y errores parciales.
+- [x] Mostrar kilómetros y minutos adicionales y precio final.
+- [ ] Mostrar coste del desvío y ahorro estimado respecto a una parada de referencia identificada, después de rediseñar la fase 2.
+- [x] Ofrecer navegación que incluya la estación como parada.
+- [x] Limitar y medir las consultas de rutas; gestionar estaciones inaccesibles, ausencia de paradas válidas y errores parciales.
 
 ```text
 desvío_km(s) = distancia(origen → s → destino) − distancia(ruta_base)
@@ -182,19 +209,20 @@ Terminada cuando: las preferencias se recuperan en otro dispositivo, cerrar sesi
 4. Preparar y evaluar una muestra de búsquedas por municipio, código postal y calle para seleccionar la integración de geocodificación.
 5. Entregar la búsqueda manual completa como primera mejora visible.
 
-El siguiente hito será el ahorro neto con ida y vuelta por carretera. La sincronización de cuentas se aborda después de validar ese valor principal.
+La búsqueda en ruta se ha adelantado al cálculo económico. La sincronización de
+cuentas se mantiene después de estabilizar preferencias y reglas.
 
-## Próxima iteración — ahorro neto
+## Próxima iteración — descuentos con condiciones
 
-1. Definir y probar el modelo de coste con los ejemplos de la fase 2.
-2. Evaluar un proveedor de rutas por carretera con muestras que incluyan autovías,
-   calles de sentido único y accesos separados a estaciones.
-3. Añadir litros previstos y consumo medio a las preferencias.
-4. Integrar ida y vuelta para un conjunto explícito de candidatas y permitir elegir
-   la estación de referencia.
-5. Mostrar el desglose en euros y validar casos donde una estación más barata
-   genera ahorro negativo.
+1. Definir céntimos/L, porcentajes y euros por operación con ejemplos comprobables.
+2. Precisar umbrales, compatibilidad, topes y orden de aplicación.
+3. Migrar los descuentos actuales y normalizar las coincidencias de marca.
+4. Diseñar cómo introducir la cantidad de repostaje sin volver a complicar el
+   flujo principal; las promociones condicionadas necesitan ese dato.
+5. Mostrar de forma breve qué promoción se aplica y comprobar los límites.
 
 ## Ajuste recomendado para el anuncio
 
-En el post, sustituir «distancia de conducción» por «distancia aproximada en línea recta». Describir la versión actual como una comparación ponderada de precio y distancia y presentar el cálculo del coste del desvío como el siguiente hito. Esto alinea el anuncio con lo que la aplicación calcula hoy.
+Describir «Cerca de mí» como comparación por precio y distancia aproximada en
+línea recta. Una vez desplegado, «En ruta» permite anunciar desvíos por carretera
+y minutos adicionales. Mantener el ahorro neto como mejora pendiente.

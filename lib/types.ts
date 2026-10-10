@@ -47,7 +47,10 @@ export type StationResult = {
   discountCents: number;
   distanceKm: number;
   score: number;
+  detour?: { distanceKm: number; durationMinutes: number };
 };
+
+export type JourneyNavigation = { origin: UserPosition; destination: UserPosition };
 
 export type ResultLists = {
   cheapest: StationResult[];

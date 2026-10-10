@@ -1,6 +1,7 @@
 import type { Discount, FuelSelection } from "./types";
 import { sanitizeDiscounts } from "./discounts";
 import { DEFAULT_PRICE_WEIGHT, DEFAULT_RADIUS_KM, MAX_RADIUS_KM, MIN_RADIUS_KM } from "./search-config";
+import { DEFAULT_DETOUR_KM, MAX_DETOUR_KM } from "./journey";
 
 export const PREFERENCES_KEY = "combustible-zc-preferences";
 export type Preferences = {
@@ -9,6 +10,7 @@ export type Preferences = {
   discounts: Discount[];
   radiusKm: number;
   priceWeight: number;
+  maximumDetourKm: number;
 };
 type StorageAccess = () => Pick<Storage, "getItem" | "setItem">;
 
@@ -16,6 +18,8 @@ export function normalizePreferences(value: unknown): Preferences {
   const input = value && typeof value === "object" ? value as Partial<Preferences> : {};
   return {
     version: 1,
+    maximumDetourKm: typeof input.maximumDetourKm === "number" && Number.isInteger(input.maximumDetourKm) &&
+      input.maximumDetourKm >= 0 && input.maximumDetourKm <= MAX_DETOUR_KM ? input.maximumDetourKm : DEFAULT_DETOUR_KM,
     selection: {
       family: input.selection?.family === "diesel" ? "diesel" : "gasoline",
       grade: input.selection?.grade === "premium" ? "premium" : "normal",
@@ -39,7 +43,7 @@ export function loadPreferences(access: StorageAccess): Preferences {
   try {
     const storage = access();
     const saved = readValue(storage, PREFERENCES_KEY);
-    if (saved && typeof saved === "object" && "version" in saved && saved.version === 1) {
+    if (saved && typeof saved === "object" && "version" in saved && (saved.version === 1 || saved.version === 2)) {
       return normalizePreferences(saved);
     }
     return normalizePreferences({

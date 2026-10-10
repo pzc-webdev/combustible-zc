@@ -6,9 +6,14 @@ import { MAX_LOCATION_QUERY, MIN_LOCATION_QUERY } from "@/lib/geocoding";
 import { isValidPosition } from "@/lib/geo";
 import type { LocationCandidate, SearchLocation } from "@/lib/types";
 
-export function LocationSearch({ onSelect, disabled }: {
+export function LocationSearch({ onSelect, disabled, id = "location", label = "O busca por municipio, código postal o dirección",
+  buttonLabel = "Buscar", onEdit }: {
   onSelect: (location: SearchLocation) => void;
   disabled: boolean;
+  id?: string;
+  label?: string;
+  buttonLabel?: string;
+  onEdit?: () => void;
 }) {
   const [query, setQuery] = useState("");
   const [locations, setLocations] = useState<LocationCandidate[]>([]);
@@ -33,7 +38,7 @@ export function LocationSearch({ onSelect, disabled }: {
       if (!response.ok) throw new Error(payload.error || "No se pudieron buscar ubicaciones.");
       if (controller.signal.aborted) return;
       setLocations(payload.locations);
-      setMessage(payload.locations.length ? "Elige una ubicación para buscar gasolineras." :
+      setMessage(payload.locations.length ? "Elige una ubicación de la lista." :
         "No encontramos esa ubicación. Prueba con el municipio o añade la provincia y el número de calle.");
     } catch (error) {
       if (!controller.signal.aborted) setMessage(error instanceof Error ? error.message : "No se pudo completar la búsqueda.");
@@ -53,6 +58,7 @@ export function LocationSearch({ onSelect, disabled }: {
     const label = location.province && !location.label.includes(location.province)
       ? `${location.label}, ${location.province}` : location.label;
     onSelect({ ...location.position, label, precision: location.precision });
+    setQuery(location.label);
     setMessage("");
     setLocations([]);
   };
@@ -60,14 +66,14 @@ export function LocationSearch({ onSelect, disabled }: {
   return (
     <div className="relative mx-auto mt-6 max-w-xl border-t border-white/15 pt-5 text-left" data-clarity-mask="true">
       <form onSubmit={event => { event.preventDefault(); void search(); }}>
-        <label htmlFor="location-query" className="mb-2 block text-sm font-semibold text-white">
-          O busca por municipio, código postal o dirección
+        <label htmlFor={`${id}-query`} className="mb-2 block text-sm font-semibold text-white">
+          {label}
         </label>
         <div className="flex gap-2">
-          <input id="location-query" type="search" autoComplete="off" value={query}
+          <input id={`${id}-query`} type="search" autoComplete="off" value={query}
             minLength={MIN_LOCATION_QUERY} maxLength={MAX_LOCATION_QUERY} disabled={disabled}
             placeholder="Ej. Sevilla, 28013 o Calle Alcalá 1, Madrid"
-            aria-describedby="location-help location-status"
+            aria-describedby={`${id}-help ${id}-status`}
             className="text-input min-w-0 flex-1 bg-[var(--surface-soft)]"
             onChange={event => {
               request.current?.abort();
@@ -76,18 +82,19 @@ export function LocationSearch({ onSelect, disabled }: {
               setLocations([]);
               setMessage("");
               setBusy(null);
+              onEdit?.();
             }} />
           <button type="submit" disabled={disabled || !!busy || query.trim().length < MIN_LOCATION_QUERY}
             className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[var(--surface-soft)] px-3 text-sm font-bold text-[#143642] disabled:opacity-50">
             {busy === "search" ? <LoaderCircle size={18} className="animate-spin" aria-hidden="true" /> : <Search size={18} aria-hidden="true" />}
-            Buscar
+            {buttonLabel}
           </button>
         </div>
-        <p id="location-help" className="mt-2 text-xs leading-5 text-white/70">
+        <p id={`${id}-help`} className="mt-2 text-xs leading-5 text-white/70">
           Busca en España sin activar la ubicación. Añade la provincia si hay varias coincidencias.
         </p>
       </form>
-      <p id="location-status" role="status" className="mt-2 text-sm text-white/90">
+      <p id={`${id}-status`} role="status" className="mt-2 text-sm text-white/90">
         {busy === "search" ? "Buscando ubicaciones…" : message}
       </p>
       {locations.length > 0 && (
