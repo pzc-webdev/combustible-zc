@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from "react";
 import { Route } from "lucide-react";
+import { InfoTooltip } from "@/components/info-tooltip";
 import { MAX_DETOUR_KM } from "@/lib/journey";
 
 export function DetourSelector({ value, onChange, disabled }: {
@@ -14,13 +15,20 @@ export function DetourSelector({ value, onChange, disabled }: {
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <span className="icon-shell"><Route size={20} aria-hidden="true" /></span>
-          <div><p className="eyebrow">Paso 2</p><h2 id="detour-title" className="section-title">Desvío máximo</h2></div>
+          <div>
+            <p className="eyebrow">Paso 2</p>
+            <div className="flex items-center gap-2">
+              <h2 id="detour-title" className="section-title">Desvío máximo</h2>
+              <InfoTooltip id="detour-tooltip" label="Información sobre el desvío máximo">
+                Kilómetros extra que aceptas añadir al viaje para repostar, incluyendo salir del trayecto y volver a él.
+              </InfoTooltip>
+            </div>
+          </div>
         </div>
         <output htmlFor="detour-range" className="shrink-0 text-2xl font-bold text-[#2B7A9A]">+{value} km</output>
       </div>
-      <p className="mt-3 text-xs leading-5 text-[#44505A]">Kilómetros extra que aceptas añadir al viaje para repostar, incluyendo salir del trayecto y volver a él.</p>
       <input id="detour-range" type="range" min="0" max={MAX_DETOUR_KM} step="1" value={value} disabled={disabled}
-        aria-label="Desvío máximo en kilómetros" className="range-input mt-4"
+        aria-label="Desvío máximo en kilómetros" className="range-input mt-5"
         style={{ "--range-progress": `${value / MAX_DETOUR_KM * 100}%` } as CSSProperties}
         onChange={event => onChange(Number(event.target.value))} />
       <div className="mt-3 grid grid-cols-5 gap-1.5">

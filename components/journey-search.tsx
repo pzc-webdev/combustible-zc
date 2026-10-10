@@ -27,7 +27,7 @@ export function JourneySearch({ disabled, onSearch, onEdit }: {
         {disabled ? <LoaderCircle size={20} className="animate-spin" aria-hidden="true" /> : <Route size={20} aria-hidden="true" />}
         {disabled ? "Buscando estaciones en ruta…" : "Buscar estaciones en ruta"}
       </button>
-      <p className="mt-3 text-xs text-white/65">Selecciona un resultado para cada lugar antes de buscar. Usa una dirección para concretar los accesos.</p>
+      <p className="mt-3 text-xs text-white/65">Selecciona un resultado para cada lugar antes de buscar.</p>
     </div>
   );
 }

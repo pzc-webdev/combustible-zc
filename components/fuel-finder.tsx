@@ -247,7 +247,7 @@ export function FuelFinder() {
           role="group" aria-label="Tipo de búsqueda">
           {([{ key: "nearby", label: "Cerca de mí" }, { key: "journey", label: "En ruta" }] as const).map(option => (
             <button key={option.key} type="button" aria-pressed={mode === option.key}
-              className={`rounded-lg px-4 py-3 text-sm font-bold ${mode === option.key ? "bg-[#143642] text-white" : "text-[#44505A]"}`}
+              className={`cursor-pointer rounded-lg px-4 py-3 text-sm font-bold ${mode === option.key ? "bg-[#143642] text-white" : "text-[#44505A]"}`}
               onClick={() => { if (mode !== option.key) { clearJourney(); setMode(option.key); } }}>{option.label}</button>
           ))}
         </div>
